@@ -74,6 +74,9 @@
 <div id="adminContent" style="display:none; margin-top: 1rem;">
 <label for="adminUserSelect">User wählen:</label>
 <select id="adminUserSelect"></select>
+<label for="adminZahlungsdatumInput">Zahlungsdatum:</label>
+<input id="adminZahlungsdatumInput" type="date" />
+<br><br>
 <label for="adminBetragInput">Betrag (CHF):</label>
 <input id="adminBetragInput" min="0" step="0.01" type="number" value="0"/>
 <button id="btnAdminSave">Speichern</button>
@@ -231,7 +234,12 @@
     const data = docSnap.data();
     const user = adminUserSelect.value;
     if (data[user]) {
-      adminBetragInput.value = data[user].betrag || 0;
+      let gesamt = 0;
+for (const eintrag of Object.values(data[user] || {})) {
+  if (eintrag && eintrag.betrag) gesamt += Number(eintrag.betrag);
+}
+adminBetragInput.value = gesamt;
+document.getElementById("adminZahlungsdatumInput").value = "";
       adminStatus.textContent = "";
     } else {
       adminBetragInput.value = 0;
@@ -259,7 +267,9 @@
     }
 
     const data = docSnap.data();
-    data[user] = { zahler: user, betrag: betrag };
+    const zahlungsdatum = document.getElementById("adminZahlungsdatumInput").value;
+if (!data[user]) data[user] = {};
+data[user][zahlungsdatum] = { zahler: user, betrag: betrag };
 
     try {
       await updateDoc(docRef, data);
@@ -444,7 +454,14 @@ const eintraege = Array.isArray(eintraegeRaw)
     users.forEach(u => {
       const anzahl = buchungen[u];
       const buchungsBetrag = anzahl * 5;
-      const bezahlterBetrag = zahlungen[u] ? zahlungen[u].betrag || 0 : 0;
+      let bezahlterBetrag = 0;
+if (zahlungen[u]) {
+  for (const eintrag of Object.values(zahlungen[u])) {
+    if (eintrag && eintrag.betrag) {
+      bezahlterBetrag += Number(eintrag.betrag);
+    }
+  }
+}
       const offenerBetrag = buchungsBetrag - bezahlterBetrag;
 
       gesamtBuchungenBetrag += buchungsBetrag;
