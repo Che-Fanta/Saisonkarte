@@ -453,7 +453,7 @@ const eintraege = Array.isArray(eintraegeRaw)
 
     users.forEach(u => {
       const anzahl = buchungen[u];
-      const buchungsBetrag = anzahl * 5;
+      const buchungsBetrag = anzahl * 15;
       let bezahlterBetrag = 0;
 if (zahlungen[u]) {
   for (const eintrag of Object.values(zahlungen[u])) {
