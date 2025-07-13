@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>Saisonkarten Verwaltung</title>
 <style>
   body { font-family: sans-serif; padding: 1rem; background: #f8f9fa; color: #333; }
@@ -26,75 +27,59 @@
 </style>
 </head>
 <body>
-
 <h1>Saisonkarten Verwaltung</h1>
-
 <!-- Modus Auswahl -->
 <div id="modeSelectView">
-  <button id="btnBesitzerMode">Saisonkartenbesitzer Login</button>
-  <button id="btnAdminMode">Admin Login</button>
+<button id="btnBesitzerMode">Saisonkartenbesitzer Login</button>
+<button id="btnAdminMode">Admin Login</button>
 </div>
-
 <!-- Saisonkartenbesitzer Login -->
 <div id="loginView">
-  <label for="userSelect">Wer bist du?</label>
-  <select id="userSelect"></select>
-  <button id="btnLogin">Login</button>
-</div>
-
+<label for="userSelect">Wer bist du?</label>
+<select id="userSelect"></select>
+<button id="btnLogin">Login</button>
+<button id="btnBackToStart1">Zurück zur Startseite</button></div>
 <!-- Hauptansicht Saisonkartenbesitzer -->
 <div id="mainView">
-  <div class="flex-row">
-    <p>Angemeldet als: <strong id="currentUserDisplay"></strong></p>
-    <button id="btnLogout">Abmelden</button>
-  </div>
-
-  <div id="userOverview" style="display:none;">
-    <h2>Deine Buchungen & Freigaben</h2>
-    <div>
-      <strong>Karten, die du freigegeben hast und gebucht sind:</strong>
-      <ul id="userOwnBookedList"></ul>
-    </div>
-    <div>
-      <strong>Karten, die du von anderen gebucht hast:</strong>
-      <ul id="userBookedOthersList"></ul>
-    </div>
-  </div>
-
-  <div id="gamesContainer">Lade Spiele...</div>
-
-  <div class="section-box">
-    <h2>Topf Übersicht</h2>
-    <ul id="topfList"></ul>
-  </div>
+<div class="flex-row">
+<p>Angemeldet als: <strong id="currentUserDisplay"></strong></p>
+<button id="btnLogout">Abmelden</button>
 </div>
-
+<div id="userOverview" style="display:none;">
+<h2>Deine Buchungen &amp; Freigaben</h2>
+<div>
+<strong>Karten, die du freigegeben hast und gebucht sind:</strong>
+<ul id="userOwnBookedList"></ul>
+</div>
+<div>
+<strong>Karten, die du von anderen gebucht hast:</strong>
+<ul id="userBookedOthersList"></ul>
+</div>
+</div>
+<div id="gamesContainer">Lade Spiele...</div>
+<div class="section-box">
+<h2>Topf Übersicht</h2>
+<ul id="topfList"></ul>
+<div><h2>Bierpool Übersicht</h2><p id="bierBudgetText">Aktuelles Budget: wird geladen...</p><h3>Ausgaben Historie</h3><table id="bierHistorieTabelle"><thead><tr><th>Datum</th><th>Betrag (CHF)</th></tr></thead><tbody></tbody></table></div></div>
+<button id="btnBackToStart2">Zurück zur Startseite</button></div>
 <!-- Admin Login -->
 <div id="adminView">
-  <button id="btnLogoutAdmin">Logout Admin</button>
-
-  <label for="adminUserInput">Admin Benutzername:</label>
-  <input id="adminUserInput" type="text" autocomplete="username" />
-
-  <label for="adminPassInput">Passwort:</label>
-  <input id="adminPassInput" type="password" autocomplete="current-password" />
-
-  <button id="btnAdminLogin">Login</button>
-  <p id="adminError" class="error"></p>
-
-  <div id="adminContent" style="display:none; margin-top: 1rem;">
-    <label for="adminUserSelect">User wählen:</label>
-    <select id="adminUserSelect"></select>
-
-    <label for="adminBetragInput">Betrag (CHF):</label>
-    <input id="adminBetragInput" type="number" min="0" step="0.01" value="0" />
-
-    <button id="btnAdminSave">Speichern</button>
-
-    <p id="adminStatus"></p>
-  </div>
-</div>
-
+<button id="btnLogoutAdmin">Logout Admin</button>
+<label for="adminUserInput">Admin Benutzername:</label>
+<input autocomplete="username" id="adminUserInput" type="text"/>
+<label for="adminPassInput">Passwort:</label>
+<input autocomplete="current-password" id="adminPassInput" type="password"/>
+<button id="btnAdminLogin">Login</button>
+<p class="error" id="adminError"></p>
+<div id="adminContent" style="display:none; margin-top: 1rem;">
+<label for="adminUserSelect">User wählen:</label>
+<select id="adminUserSelect"></select>
+<label for="adminBetragInput">Betrag (CHF):</label>
+<input id="adminBetragInput" min="0" step="0.01" type="number" value="0"/>
+<button id="btnAdminSave">Speichern</button>
+<p id="adminStatus"></p>
+<hr/><h3>Bierpool Eintrag</h3><label for="bierDatumInput">Datum:</label><input id="bierDatumInput" type="date"/><label for="bierBetragInput">Betrag (CHF):</label><input id="bierBetragInput" min="0" step="0.01" type="number" value=""/><button id="btnSaveBierpool">Eintrag speichern</button><p id="bierpoolStatus"></p></div>
+<button id="btnBackToStartAdmin">Zurück zur Startseite</button></div>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -303,7 +288,10 @@
       const daten = datenSnap.data();
       const zahlungen = zahlungenSnap.exists() ? zahlungenSnap.data() : {};
 
-      const eintraege = daten.eintraege || [];
+      let eintraegeRaw = daten.eintraege || [];
+const eintraege = Array.isArray(eintraegeRaw)
+  ? eintraegeRaw
+  : Object.values(eintraegeRaw);
 
       rundenMap = new Map();
       eintraege.forEach(e => {
@@ -462,6 +450,7 @@
       gesamtBuchungenBetrag += buchungsBetrag;
       gesamtBezahlungenBetrag += bezahlterBetrag;
       gesamtOffenerBetrag += offenerBetrag;
+    ladeBierpoolDaten(gesamtBezahlungenBetrag);
 
       const tr = document.createElement("tr");
 
@@ -529,7 +518,87 @@
   // Zeige Modus-Auswahl
   modeSelectView.style.display = "block";
 
-</script>
 
+
+document.getElementById("btnBackToStart1")?.addEventListener("click", () => {
+  loginView.style.display = "none";
+  modeSelectView.style.display = "block";
+});
+
+document.getElementById("btnBackToStart2")?.addEventListener("click", () => {
+  mainView.style.display = "none";
+  modeSelectView.style.display = "block";
+  currentUser = null;
+});
+
+
+document.getElementById("btnBackToStartAdmin")?.addEventListener("click", () => {
+  adminView.style.display = "none";
+  modeSelectView.style.display = "block";
+});
+
+
+async function ladeBierpoolDaten(gesamtZahlungenBetrag = 0) {
+  const bierRef = doc(db, "meta", "bierpool");
+  const bierSnap = await getDoc(bierRef);
+
+  const tbody = document.querySelector("#bierHistorieTabelle tbody");
+  const bierBudgetText = document.getElementById("bierBudgetText");
+  tbody.innerHTML = "";
+
+  let gesamtAusgaben = 0;
+
+  if (bierSnap.exists()) {
+    const daten = bierSnap.data();
+    const eintraege = Object.entries(daten)
+      .filter(([datum]) => /^\d{4}-\d{2}-\d{2}$/.test(datum))
+      .sort(([a], [b]) => b.localeCompare(a));
+
+    eintraege.forEach(([datum, betrag]) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${datum}</td><td>${betrag} CHF</td>`;
+      tbody.appendChild(row);
+      gesamtAusgaben += parseFloat(betrag) || 0;
+    });
+  }
+
+  const budget = (gesamtZahlungenBetrag - gesamtAusgaben).toFixed(2);
+  bierBudgetText.textContent = `Aktuelles Budget: CHF ${budget}`;
+}
+
+
+document.getElementById("btnSaveBierpool")?.addEventListener("click", async () => {
+  const datum = document.getElementById("bierDatumInput").value;
+  const betrag = parseFloat(document.getElementById("bierBetragInput").value);
+  const status = document.getElementById("bierpoolStatus");
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(datum)) {
+    status.textContent = "Bitte ein gültiges Datum eingeben.";
+    return;
+  }
+
+  if (isNaN(betrag) || betrag <= 0) {
+    status.textContent = "Bitte einen gültigen Betrag eingeben.";
+    return;
+  }
+
+  status.textContent = "Speichere...";
+
+  const ref = doc(db, "meta", "bierpool");
+  const snap = await getDoc(ref);
+  const data = snap.exists() ? snap.data() : {};
+  data[datum] = betrag;
+
+  try {
+    await updateDoc(ref, data);
+    status.textContent = "Eintrag gespeichert!";
+    document.getElementById("bierDatumInput").value = "";
+    document.getElementById("bierBetragInput").value = "";
+    ladeBierpoolDaten(); // Refresh Übersicht
+  } catch (err) {
+    status.textContent = "Fehler beim Speichern: " + err.message;
+  }
+});
+</script>
 </body>
 </html>
