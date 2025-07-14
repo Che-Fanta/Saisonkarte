@@ -99,6 +99,24 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
+  async function ladeSichtbareRunden() {
+  const sichtRef = doc(db, "meta", "rundenSichtbarkeit");
+  try {
+    const sichtSnap = await getDoc(sichtRef);
+    if (!sichtSnap.exists()) return new Set();
+    const sichtData = sichtSnap.data();
+    return new Set(
+      Object.entries(sichtData)
+        .filter(([_, sichtbar]) => sichtbar !== false)
+        .map(([runde]) => runde.trim())
+    );
+  } catch (err) {
+    console.error("Fehler beim Laden der Sichtbarkeiten:", err);
+    return new Set(); // zur Sicherheit keine Runden anzeigen
+  }
+}
+
+
   // Nutzerliste
   const users = ["Peter", "Thomas-Nico", "Chrigi", "Damian", "Dominik", "Pascal", "Hubi", "Jonas", "Ken", "Zolli", "Ramon", "Nico", "Thomas"];
 
@@ -319,107 +337,113 @@ const eintraege = Array.isArray(eintraegeRaw)
     }
   }
 
-  function renderSpiele() {
-    gamesContainer.innerHTML = "";
+async function renderSpiele() {
+  gamesContainer.innerHTML = "";
 
-    const toggleAllBtn = document.createElement("button");
-    toggleAllBtn.textContent = "Alle öffnen/schließen";
-    toggleAllBtn.style.marginBottom = "1rem";
-    toggleAllBtn.onclick = () => {
-      const allDetails = gamesContainer.querySelectorAll("details");
-      const alleOffen = Array.from(allDetails).every(d => d.open);
-      allDetails.forEach(d => d.open = !alleOffen);
-    };
-    gamesContainer.appendChild(toggleAllBtn);
+  const sichtbareRunden = await ladeSichtbareRunden(); // 🔥 neue Sichtbarkeitsabfrage
 
-    rundenMap.forEach((spiele, runde) => {
-      const details = document.createElement("details");
-      details.style.background = "#0d6efd";
-      details.style.color = "white";
+  const toggleAllBtn = document.createElement("button");
+  toggleAllBtn.textContent = "Alle öffnen/schließen";
+  toggleAllBtn.style.marginBottom = "1rem";
+  toggleAllBtn.onclick = () => {
+    const allDetails = gamesContainer.querySelectorAll("details");
+    const alleOffen = Array.from(allDetails).every(d => d.open);
+    allDetails.forEach(d => d.open = !alleOffen);
+  };
+  gamesContainer.appendChild(toggleAllBtn);
 
-      const summary = document.createElement("summary");
-      summary.textContent = spiele[0]?.spiel || runde;
-      details.appendChild(summary);
+  rundenMap.forEach((spiele, runde) => {
+    if (!sichtbareRunden.has(runde)) return; // ❗ Runde ausblenden wenn false
 
-      const table = document.createElement("table");
-      const thead = document.createElement("thead");
-      thead.innerHTML = `<tr><th>Spiel</th><th>Inhaber</th><th>Status</th><th>Aktion</th></tr>`;
-      table.appendChild(thead);
+    const details = document.createElement("details");
+    details.style.background = "#0d6efd";
+    details.style.color = "white";
 
-      const tbody = document.createElement("tbody");
-      spiele.forEach((eintrag, idx) => {
-        const tr = document.createElement("tr");
+    const summary = document.createElement("summary");
+    summary.textContent = spiele[0]?.spiel || runde;
+    details.appendChild(summary);
 
-        const statusText = eintrag.status === "frei" ? `Frei (von ${eintrag.besitzer})`
+    const table = document.createElement("table");
+    const thead = document.createElement("thead");
+    thead.innerHTML = `<tr><th>Spiel</th><th>Inhaber</th><th>Status</th><th>Aktion</th></tr>`;
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    spiele.forEach((eintrag, idx) => {
+      const tr = document.createElement("tr");
+
+      const statusText = eintrag.status === "frei" ? `Frei (von ${eintrag.besitzer})`
                         : (eintrag.status === "belegt" ? "Nicht freigegeben"
                         : `Gebucht von ${eintrag.bucher}`);
 
-        let actionHTML = "-";
-        if (eintrag.besitzer === currentUser && eintrag.status === "belegt") {
-          actionHTML = `<button data-index="${idx}" data-runde="${runde}">Freigeben</button>`;
-        } else if (eintrag.status === "frei" && eintrag.besitzer !== currentUser && !eintrag.bucher) {
-          actionHTML = `<button data-index="${idx}" data-runde="${runde}">Buchen</button>`;
-        } else if (eintrag.status === "gebucht" && eintrag.bucher === currentUser) {
-          actionHTML = `<button data-index="${idx}" data-runde="${runde}">Wieder freigeben</button>`;
-        } else if (eintrag.status === "frei" && eintrag.besitzer === currentUser) {
-          actionHTML = `<button data-index="${idx}" data-runde="${runde}">Zurücknehmen</button>`;
-        }
+      let actionHTML = "-";
+      if (eintrag.besitzer === currentUser && eintrag.status === "belegt") {
+        actionHTML = `<button data-index="${idx}" data-runde="${runde}">Freigeben</button>`;
+      } else if (eintrag.status === "frei" && eintrag.besitzer !== currentUser && !eintrag.bucher) {
+        actionHTML = `<button data-index="${idx}" data-runde="${runde}">Buchen</button>`;
+      } else if (eintrag.status === "gebucht" && eintrag.bucher === currentUser) {
+        actionHTML = `<button data-index="${idx}" data-runde="${runde}">Wieder freigeben</button>`;
+      } else if (eintrag.status === "frei" && eintrag.besitzer === currentUser) {
+        actionHTML = `<button data-index="${idx}" data-runde="${runde}">Zurücknehmen</button>`;
+      }
 
-        tr.innerHTML = `
-          <td>${eintrag.spiel}</td>
-          <td>${eintrag.besitzer}</td>
-          <td>${statusText}</td>
-          <td>${actionHTML}</td>
-        `;
+      tr.innerHTML = `
+        <td>${eintrag.spiel}</td>
+        <td>${eintrag.besitzer}</td>
+        <td>${statusText}</td>
+        <td>${actionHTML}</td>
+      `;
 
-        tbody.appendChild(tr);
-      });
-      table.appendChild(tbody);
-      details.appendChild(table);
-      gamesContainer.appendChild(details);
+      tbody.appendChild(tr);
     });
+    table.appendChild(tbody);
+    details.appendChild(table);
+    gamesContainer.appendChild(details);
+  });
 
-    gamesContainer.querySelectorAll("button").forEach(btn => {
-      btn.addEventListener("click", async e => {
-        const button = e.currentTarget;
-        const idx = parseInt(button.dataset.index);
-        const runde = button.dataset.runde;
-        if (isNaN(idx) || !runde) return;
+  // Event Listener für Buttons
+  gamesContainer.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", async e => {
+      const button = e.currentTarget;
+      const idx = parseInt(button.dataset.index);
+      const runde = button.dataset.runde;
+      if (isNaN(idx) || !runde) return;
 
-        const spieleDerRunde = rundenMap.get(runde);
-        if (!spieleDerRunde) return;
+      const spieleDerRunde = rundenMap.get(runde);
+      if (!spieleDerRunde) return;
 
-        const eintrag = spieleDerRunde[idx];
+      const eintrag = spieleDerRunde[idx];
 
-        if (button.textContent === "Freigeben") {
-          eintrag.status = "frei";
-          eintrag.bucher = null;
-        } else if (button.textContent === "Buchen") {
-          eintrag.status = "gebucht";
-          eintrag.bucher = currentUser;
-        } else if (button.textContent === "Zurücknehmen") {
-          eintrag.status = "belegt";
-          eintrag.bucher = null;
-        } else if (button.textContent === "Wieder freigeben") {
-          eintrag.status = "frei";
-          eintrag.bucher = null;
-        }
+      if (button.textContent === "Freigeben") {
+        eintrag.status = "frei";
+        eintrag.bucher = null;
+      } else if (button.textContent === "Buchen") {
+        eintrag.status = "gebucht";
+        eintrag.bucher = currentUser;
+      } else if (button.textContent === "Zurücknehmen") {
+        eintrag.status = "belegt";
+        eintrag.bucher = null;
+      } else if (button.textContent === "Wieder freigeben") {
+        eintrag.status = "frei";
+        eintrag.bucher = null;
+      }
 
-        let alleEintraege = [];
-        rundenMap.forEach(arr => alleEintraege = alleEintraege.concat(arr));
+      let alleEintraege = [];
+      rundenMap.forEach(arr => alleEintraege = alleEintraege.concat(arr));
 
-        try {
-          await updateDoc(doc(db, "meta", "daten"), {
-            eintraege: alleEintraege
-          });
-          alert("Erfolgreich aktualisiert!");
-          ladeSpiele();
-        } catch (err) {
-          alert("Fehler beim Speichern: " + err.message);
-        }
-      });
+      try {
+        await updateDoc(doc(db, "meta", "daten"), {
+          eintraege: alleEintraege
+        });
+        alert("Erfolgreich aktualisiert!");
+        ladeSpiele();
+      } catch (err) {
+        alert("Fehler beim Speichern: " + err.message);
+      }
     });
-  }
+  });
+}
+
 
   function berechneBuchungen(eintraege, zahlungen) {
     const buchungen = {};
