@@ -139,7 +139,7 @@
 
     <div class="section-box">
       <h2>Spiele &amp; Sichtbarkeit</h2>
-      <p class="muted">Nur sichtbare Spiele können freigegeben/gebucht werden. Beim Löschen eines Spiels werden auch dessen Reservierungen entfernt.</p>
+      <p class="muted"><strong>Bearbeiten</strong> = Datum/Zeit/Gegner anpassen. Häkchen entfernen = <strong>ausblenden</strong> (Reservierungen bleiben erhalten). <strong>Löschen</strong> entfernt das Spiel inkl. Reservierungen (mit Rückfrage). Spiele werden zudem automatisch 24 Std. nach Anpfiff ausgeblendet – die Buchungen bleiben gespeichert.</p>
       <div id="adminGamesList"></div>
       <p id="adminStatus" class="ok"></p>
     </div>
@@ -217,6 +217,7 @@
   let spiele = [];          // [{id, runde, datum, zeit, gegner}]
   let reservierungen = {};
   let sichtbarkeit = {};
+  let adminEditId = null;   // welches Spiel gerade im Admin bearbeitet wird
 
   // ---- DOM ----
   const modeSelectView = document.getElementById("modeSelectView");
@@ -254,6 +255,10 @@
     const [y, m, d] = iso.split("-");
     return `${d}.${m}.${y}`;
   }
+  function deToIso(de) { // 26.07.2026 -> 2026-07-26
+    const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(de || "");
+    return m ? `${m[3]}-${m[2]}-${m[1]}` : "";
+  }
   function deSortKey(de) { // 26.07.2026 -> 20260726
     const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(de || "");
     return m ? Number(m[3] + m[2] + m[1]) : 99999999;
@@ -264,6 +269,15 @@
     if (!m) return null;
     const [hh, mm] = (s.zeit && /^\d{2}:\d{2}$/.test(s.zeit)) ? s.zeit.split(":") : ["16", "00"];
     return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), Number(hh), Number(mm));
+  }
+  // true, wenn das Spiel mehr als 24 Std. her ist (Anpfiff + 24h in der Vergangenheit)
+  function istVergangen(s) {
+    const d = spielDatum(s);
+    return !!(d && d.getTime() + 24 * 3600 * 1000 < Date.now());
+  }
+  // sichtbar UND noch nicht automatisch ausgeblendet (24h nach Spiel)
+  function istAktiv(s) {
+    return sichtbarkeit[s.id] === true && !istVergangen(s);
   }
   function spielLabel(s) {
     const zeit = s.zeit ? `${s.zeit} Uhr` : "Zeit offen";
@@ -360,7 +374,7 @@
 
   function renderSpiele() {
     gamesContainer.innerHTML = "";
-    const sichtbareSpiele = spiele.filter(s => sichtbarkeit[s.id] === true);
+    const sichtbareSpiele = spiele.filter(istAktiv);
     if (sichtbareSpiele.length === 0) {
       gamesContainer.innerHTML = "<p>Aktuell sind keine Spiele freigeschaltet.</p>";
       return;
@@ -480,7 +494,7 @@
     userOwnList.innerHTML = "";
     let eigene = [];
     spiele.forEach(s => {
-      if (sichtbarkeit[s.id] !== true) return;
+      if (!istAktiv(s)) return;
       const r = getRes(s.id, meineKarte);
       if (r && (r.status === "frei" || r.status === "gebucht")) {
         const txt = r.status === "frei"
@@ -495,7 +509,7 @@
     userBookedOthersList.innerHTML = "";
     let gebucht = [];
     spiele.forEach(s => {
-      if (sichtbarkeit[s.id] !== true) return;
+      if (!istAktiv(s)) return;
       kartenBesitzer.forEach(b => {
         if (b === meineKarte) return;
         const r = getRes(s.id, b);
@@ -509,7 +523,7 @@
   }
 
   function renderUebersicht() {
-    const sichtbareSpiele = spiele.filter(s => sichtbarkeit[s.id] === true);
+    const sichtbareSpiele = spiele.filter(istAktiv);
     if (sichtbareSpiele.length === 0) { reservierungsUebersicht.innerHTML = "<p class='muted'>Keine Spiele freigeschaltet.</p>"; return; }
     const table = document.createElement("table");
     table.innerHTML = `<thead><tr><th>Spiel</th><th>Freigegeben</th><th>Gebucht</th><th>Noch frei</th></tr></thead>`;
@@ -679,56 +693,89 @@
       adminGamesList.innerHTML = "<p class='muted'>Noch keine Spiele erfasst. Füge oben Spiele hinzu oder importiere die Heimspiele 2026/27.</p>";
       return;
     }
+
     spiele.forEach(s => {
-      const sichtbar = sichtbarkeit[s.id] === true;
       const row = document.createElement("div");
       row.className = "adminGameRow";
-      row.innerHTML = `
-        <label style="margin:0; display:flex; align-items:center; gap:0.5rem; flex:1;">
-          <input type="checkbox" data-spiel="${s.id}" ${sichtbar ? "checked" : ""} style="width:auto;">
-          <span>${spielLabel(s)}</span>
-        </label>
-        <button class="danger" data-del="${s.id}">Löschen</button>`;
-      adminGamesList.appendChild(row);
-    });
 
-    adminGamesList.querySelectorAll("input[type=checkbox]").forEach(cb => {
-      cb.addEventListener("change", async e => {
-        const spielId = e.target.dataset.spiel;
-        adminStatus.className = "ok";
-        adminStatus.textContent = "Speichere...";
-        try {
-          await setDoc(dataRef, { rundenSichtbarkeit: { [spielId]: e.target.checked } }, { merge: true });
-          sichtbarkeit[spielId] = e.target.checked;
-          adminStatus.textContent = "Gespeichert.";
-        } catch (err) {
-          adminStatus.className = "error";
-          adminStatus.textContent = "Fehler: " + err.message;
-          e.target.checked = !e.target.checked;
-        }
-      });
-    });
+      if (adminEditId === s.id) {
+        // --- Bearbeiten-Modus ---
+        row.style.flexWrap = "wrap";
+        row.innerHTML = `
+          <div class="addForm" style="flex:1; min-width:280px;">
+            <div class="field"><span>Runde</span><input type="number" min="1" class="editRunde" value="${s.runde ?? ""}"></div>
+            <div class="field"><span>Datum</span><input type="date" class="editDatum" value="${deToIso(s.datum)}"></div>
+            <div class="field"><span>Zeit (leer = offen)</span><input type="time" class="editZeit" value="${s.zeit || ""}"></div>
+            <div class="field"><span>Gegner</span><input type="text" class="editGegner" value="${(s.gegner || "").replace(/"/g, "&quot;")}"></div>
+          </div>
+          <div>
+            <button class="editSave">Speichern</button>
+            <button class="secondary editCancel">Abbrechen</button>
+          </div>`;
+        adminGamesList.appendChild(row);
 
-    adminGamesList.querySelectorAll("button[data-del]").forEach(btn => {
-      btn.addEventListener("click", async e => {
-        const spielId = e.target.dataset.del;
-        const s = spiele.find(x => x.id === spielId);
-        if (!confirm(`Spiel wirklich löschen?\n${s ? spielLabel(s) : spielId}\n\nAuch alle Reservierungen dazu werden entfernt.`)) return;
-        adminStatus.className = "ok";
-        adminStatus.textContent = "Lösche...";
-        try {
-          await updateDoc(dataRef, {
-            [`spiele.${spielId}`]: deleteField(),
-            [`rundenSichtbarkeit.${spielId}`]: deleteField(),
-            [`reservierungen.${spielId}`]: deleteField()
-          });
-          adminStatus.textContent = "Spiel gelöscht.";
-          ladeAdminGames();
-        } catch (err) {
-          adminStatus.className = "error";
-          adminStatus.textContent = "Fehler: " + err.message;
-        }
-      });
+        row.querySelector(".editSave").addEventListener("click", async () => {
+          const runde = parseInt(row.querySelector(".editRunde").value);
+          const datumIso = row.querySelector(".editDatum").value;
+          const zeit = row.querySelector(".editZeit").value || "";
+          const gegner = row.querySelector(".editGegner").value.trim();
+          if (!datumIso || !gegner) { adminStatus.className = "error"; adminStatus.textContent = "Datum und Gegner sind nötig."; return; }
+          adminStatus.className = "ok"; adminStatus.textContent = "Speichere...";
+          try {
+            await updateDoc(dataRef, {
+              [`spiele.${s.id}`]: { runde: isNaN(runde) ? null : runde, datum: isoToDe(datumIso), zeit, gegner }
+            });
+            adminEditId = null;
+            adminStatus.textContent = "Spiel aktualisiert.";
+            ladeAdminGames();
+          } catch (err) { adminStatus.className = "error"; adminStatus.textContent = "Fehler: " + err.message; }
+        });
+        row.querySelector(".editCancel").addEventListener("click", () => { adminEditId = null; ladeAdminGames(); });
+
+      } else {
+        // --- Normale Ansicht ---
+        const sichtbar = sichtbarkeit[s.id] === true;
+        const vergangen = istVergangen(s);
+        row.innerHTML = `
+          <label style="margin:0; display:flex; align-items:center; gap:0.5rem; flex:1;">
+            <input type="checkbox" class="visCb" data-spiel="${s.id}" ${sichtbar ? "checked" : ""} style="width:auto;" title="Häkchen = sichtbar, leer = ausgeblendet (Buchungen bleiben)">
+            <span>${spielLabel(s)}${vergangen ? ' <span class="muted">(vergangen – automatisch ausgeblendet, Buchungen bleiben)</span>' : ''}</span>
+          </label>
+          <div style="display:flex; gap:0.3rem;">
+            <button class="secondary editBtn" data-edit="${s.id}">Bearbeiten</button>
+            <button class="danger delBtn" data-del="${s.id}">Löschen</button>
+          </div>`;
+        adminGamesList.appendChild(row);
+
+        row.querySelector(".visCb").addEventListener("change", async e => {
+          const spielId = e.target.dataset.spiel;
+          adminStatus.className = "ok"; adminStatus.textContent = "Speichere...";
+          try {
+            await setDoc(dataRef, { rundenSichtbarkeit: { [spielId]: e.target.checked } }, { merge: true });
+            sichtbarkeit[spielId] = e.target.checked;
+            adminStatus.textContent = e.target.checked ? "Spiel eingeblendet." : "Spiel ausgeblendet (Buchungen bleiben).";
+          } catch (err) {
+            adminStatus.className = "error"; adminStatus.textContent = "Fehler: " + err.message;
+            e.target.checked = !e.target.checked;
+          }
+        });
+
+        row.querySelector(".editBtn").addEventListener("click", () => { adminEditId = s.id; ladeAdminGames(); });
+
+        row.querySelector(".delBtn").addEventListener("click", async () => {
+          if (!confirm(`Spiel WIRKLICH löschen?\n\n${spielLabel(s)}\n\nAchtung: Auch alle Buchungen/Reservierungen zu diesem Spiel werden unwiderruflich entfernt.`)) return;
+          adminStatus.className = "ok"; adminStatus.textContent = "Lösche...";
+          try {
+            await updateDoc(dataRef, {
+              [`spiele.${s.id}`]: deleteField(),
+              [`rundenSichtbarkeit.${s.id}`]: deleteField(),
+              [`reservierungen.${s.id}`]: deleteField()
+            });
+            adminStatus.textContent = "Spiel gelöscht.";
+            ladeAdminGames();
+          } catch (err) { adminStatus.className = "error"; adminStatus.textContent = "Fehler: " + err.message; }
+        });
+      }
     });
   }
 
