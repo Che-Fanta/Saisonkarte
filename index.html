@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="de">
 <head>
 <meta charset="utf-8"/>
@@ -8,84 +7,149 @@
 <style>
   body { font-family: sans-serif; padding: 1rem; background: #f8f9fa; color: #333; }
   #modeSelectView, #loginView, #mainView, #adminView { display: none; }
+  h1 { color: #084298; }
   details { margin-bottom: 1rem; border: 1px solid #0d6efd; border-radius: 5px; background: #0d6efd; color: white; }
   summary { font-weight: bold; padding: 0.5rem; cursor: pointer; }
   summary:hover { background: #084298; }
   table { width: 100%; border-collapse: collapse; background: white; color: black; }
-  th, td { border: 1px solid #ccc; padding: 0.4rem; text-align: center; }
-  button { background: #198754; color: white; border: none; padding: 0.3rem 0.7rem; border-radius: 3px; cursor: pointer; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem; text-align: center; font-size: 0.95rem; }
+  button { background: #198754; color: white; border: none; padding: 0.3rem 0.7rem; border-radius: 3px; cursor: pointer; margin: 0.1rem; }
+  button.secondary { background: #6c757d; }
+  button.danger { background: #b02a37; }
   button:disabled { background: #ccc; cursor: default; }
-  .flex-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-  #topfList li { margin-bottom: 0.3rem; }
+  .flex-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
   #userOverview { background: white; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
   #userOverview h2 { margin-top: 0; }
+  .section-box { background: white; padding: 1rem; border-radius: 6px; margin-top: 1rem; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+  .section-box h2 { color: #084298; margin-top: 0; }
   ul { padding-left: 1.2rem; }
   label { display: block; margin-top: 1rem; }
-  select, input { padding: 0.4rem; font-size: 1rem; width: 200px; }
-  #adminView { max-width: 400px; }
-  .error { color: red; margin-top: 0.5rem; }
+  select, input { padding: 0.4rem; font-size: 1rem; width: 220px; }
+  #adminView { max-width: 700px; }
+  .error { color: #b02a37; margin-top: 0.5rem; }
+  .ok { color: #198754; }
+  .muted { color: #666; font-size: 0.85rem; }
+  .saison { color:#666; font-size:0.85rem; margin-top:-0.5rem; }
+  .tag-frei { color: #198754; font-weight: bold; }
+  .tag-gebucht { color: #b02a37; font-weight: bold; }
+  .tag-zu { color: #666; }
+  .shared { font-style: italic; color: #555; }
+  .adminGameRow { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:0.4rem 0; gap:0.5rem; }
+  .addForm .field { display:inline-flex; flex-direction:column; margin:0 0.6rem 0.6rem 0; }
+  .addForm .field span { font-size:0.8rem; color:#555; }
+  .addForm input[type=number] { width:90px; }
+  .addForm input[type=time] { width:120px; }
 </style>
 </head>
 <body>
 <h1>Saisonkarten Verwaltung</h1>
+<p class="saison" id="saisonHinweis"></p>
+
 <!-- Modus Auswahl -->
 <div id="modeSelectView">
-<button id="btnBesitzerMode">Saisonkartenbesitzer Login</button>
-<button id="btnAdminMode">Admin Login</button>
+  <button id="btnBesitzerMode">Saisonkarten-Login</button>
+  <button id="btnAdminMode" class="secondary">Admin Login</button>
 </div>
-<!-- Saisonkartenbesitzer Login -->
+
+<!-- Login -->
 <div id="loginView">
-<label for="userSelect">Wer bist du?</label>
-<select id="userSelect"></select>
-<button id="btnLogin">Login</button>
-<button id="btnBackToStart1">Zurück zur Startseite</button></div>
-<!-- Hauptansicht Saisonkartenbesitzer -->
+  <label for="userSelect">Wer bist du?</label>
+  <select id="userSelect"></select>
+  <button id="btnLogin">Login</button>
+  <button id="btnBackToStart1" class="secondary">Zurück zur Startseite</button>
+</div>
+
+<!-- Hauptansicht -->
 <div id="mainView">
-<div class="flex-row">
-<p>Angemeldet als: <strong id="currentUserDisplay"></strong></p>
-<button id="btnLogout">Abmelden</button>
+  <div class="flex-row">
+    <p>Angemeldet als: <strong id="currentUserDisplay"></strong></p>
+    <button id="btnLogout" class="secondary">Abmelden</button>
+  </div>
+
+  <div id="userOverview" style="display:none;">
+    <h2>Deine Übersicht</h2>
+    <div>
+      <strong>Deine Karten, die freigegeben / gebucht sind:</strong>
+      <ul id="userOwnList"></ul>
+    </div>
+    <div>
+      <strong>Karten, die du von anderen gebucht hast:</strong>
+      <ul id="userBookedOthersList"></ul>
+    </div>
+  </div>
+
+  <div id="gamesContainer">Lade Spiele...</div>
+
+  <div class="section-box">
+    <h2>Reservierungs-Übersicht</h2>
+    <p class="muted">Zahlungen werden direkt zwischen Käufer und Verkäufer geregelt – dieses Tool verwaltet nur die Reservierungen.</p>
+    <div id="reservierungsUebersicht"></div>
+  </div>
+
+  <div class="section-box">
+    <h2>Statistik</h2>
+    <p class="muted">Über alle erfassten Spiele dieser Saison.</p>
+    <div id="statistik"></div>
+  </div>
+
+  <div class="section-box">
+    <h2>⚽ Penalty-Challenge</h2>
+    <p class="muted">20 Penaltys. Wähle eine Ecke – ob der Ball reingeht, ist <strong>reine Glückssache</strong>! Der Goalie hechtet zufällig irgendwohin. 20/20 schafft fast niemand …</p>
+    <div id="penaltyScore" style="font-weight:bold; margin-bottom:0.5rem;"></div>
+
+    <p class="muted" style="margin:0.2rem 0;">Ecke wählen = schiessen:</p>
+    <div id="penaltyGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; max-width:340px;"></div>
+
+    <div id="penaltyField" style="font-size:2rem; height:2.4rem; margin:0.6rem 0;">🥅&nbsp;&nbsp;🧤&nbsp;&nbsp;⚽</div>
+    <p id="penaltyMsg" style="min-height:1.4rem; margin:0.4rem 0;"></p>
+    <button id="penaltyReset" class="secondary" style="display:none;">Nochmal spielen</button>
+
+    <h3 style="color:#084298; margin:1rem 0 0.3rem;">🏆 Leaderboard</h3>
+    <div id="penaltyLeaderboard"><p class="muted">Wird geladen...</p></div>
+  </div>
+
+  <button id="btnBackToStart2" class="secondary">Zurück zur Startseite</button>
 </div>
-<div id="userOverview" style="display:none;">
-<h2>Deine Buchungen &amp; Freigaben</h2>
-<div>
-<strong>Karten, die du freigegeben hast und gebucht sind:</strong>
-<ul id="userOwnBookedList"></ul>
-</div>
-<div>
-<strong>Karten, die du von anderen gebucht hast:</strong>
-<ul id="userBookedOthersList"></ul>
-</div>
-</div>
-<div id="gamesContainer">Lade Spiele...</div>
-<div class="section-box">
-<h2>Topf Übersicht</h2>
-<ul id="topfList"></ul>
-<div><h2>Bierpool Übersicht</h2><p id="bierBudgetText">Aktuelles Budget: wird geladen...</p><h3>Ausgaben Historie</h3><table id="bierHistorieTabelle"><thead><tr><th>Datum</th><th>Betrag (CHF)</th></tr></thead><tbody></tbody></table></div></div>
-<button id="btnBackToStart2">Zurück zur Startseite</button></div>
-<!-- Admin Login -->
+
+<!-- Admin -->
 <div id="adminView">
-<button id="btnLogoutAdmin">Logout Admin</button>
-<label for="adminUserInput">Admin Benutzername:</label>
-<input autocomplete="username" id="adminUserInput" type="text"/>
-<label for="adminPassInput">Passwort:</label>
-<input autocomplete="current-password" id="adminPassInput" type="password"/>
-<button id="btnAdminLogin">Login</button>
-<p class="error" id="adminError"></p>
-<div id="adminContent" style="display:none; margin-top: 1rem;">
-<label for="adminUserSelect">User wählen:</label>
-<select id="adminUserSelect"></select>
-<label for="adminZahlungsdatumInput">Zahlungsdatum:</label>
-<input id="adminZahlungsdatumInput" type="date" />
-<br><br>
-<label for="adminBetragInput">Betrag (CHF):</label>
-<input id="adminBetragInput" min="0" step="0.01" type="number" value="0"/>
-<button id="btnAdminSave">Speichern</button>
-<p id="adminStatus"></p>
-<hr/><h3>Bierpool Eintrag</h3><label for="bierDatumInput">Datum:</label><input id="bierDatumInput" type="date"/><label for="bierBetragInput">Betrag (CHF):</label><input id="bierBetragInput" min="0" step="0.01" type="number" value=""/><button id="btnSaveBierpool">Eintrag speichern</button><p id="bierpoolStatus"></p></div>
-<button id="btnBackToStartAdmin">Zurück zur Startseite</button></div>
+  <button id="btnLogoutAdmin" class="secondary">Logout Admin</button>
+  <label for="adminUserInput">Admin Benutzername:</label>
+  <input autocomplete="username" id="adminUserInput" type="text"/>
+  <label for="adminPassInput">Passwort:</label>
+  <input autocomplete="current-password" id="adminPassInput" type="password"/>
+  <button id="btnAdminLogin">Login</button>
+  <p class="error" id="adminError"></p>
+
+  <div id="adminContent" style="display:none; margin-top: 1rem;">
+    <div class="section-box">
+      <h2>Neues Spiel hinzufügen</h2>
+      <div class="addForm">
+        <div class="field"><span>Runde</span><input id="addRunde" type="number" min="1" placeholder="z.B. 1"></div>
+        <div class="field"><span>Datum</span><input id="addDatum" type="date"></div>
+        <div class="field"><span>Zeit (optional)</span><input id="addZeit" type="time"></div>
+        <div class="field"><span>Gegner</span><input id="addGegner" type="text" placeholder="z.B. FC Basel"></div>
+      </div>
+      <div>
+        <button id="btnAddSpiel">Spiel hinzufügen</button>
+        <button id="btnImportDefault" class="secondary">Heimspiele 2026/27 importieren</button>
+      </div>
+      <p id="addStatus" class="ok"></p>
+    </div>
+
+    <div class="section-box">
+      <h2>Spiele &amp; Sichtbarkeit</h2>
+      <p class="muted">Nur sichtbare Spiele können freigegeben/gebucht werden. Beim Löschen eines Spiels werden auch dessen Reservierungen entfernt.</p>
+      <div id="adminGamesList"></div>
+      <p id="adminStatus" class="ok"></p>
+    </div>
+  </div>
+  <button id="btnBackToStartAdmin" class="secondary">Zurück zur Startseite</button>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBvgPQncOEReUlgoZhDPp6VU2TaEgjKVPk",
@@ -95,105 +159,155 @@
     messagingSenderId: "865232042094",
     appId: "1:865232042094:web:6d04349c5c10717c640e7f"
   };
-
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  async function ladeSichtbareRunden() {
-  const sichtRef = doc(db, "meta", "rundenSichtbarkeit");
-  try {
-    const sichtSnap = await getDoc(sichtRef);
-    if (!sichtSnap.exists()) return new Set();
-    const sichtData = sichtSnap.data();
-    return new Set(
-      Object.entries(sichtData)
-        .filter(([_, sichtbar]) => sichtbar !== false)
-        .map(([runde]) => runde.trim())
-    );
-  } catch (err) {
-    console.error("Fehler beim Laden der Sichtbarkeiten:", err);
-    return new Set(); // zur Sicherheit keine Runden anzeigen
+  // ====================================================================
+  // >>> SAISON-NAMESPACE <<<
+  // Für eine neue Saison: SAISON (Sammlung) und SAISON_LABEL (Anzeige) anpassen,
+  // z.B. "Tool_27_28" und "2027/2028".
+  // Alle Daten liegen in EINEM Dokument:  <SAISON>/data
+  //   data.spiele             -> { spielId: {runde, datum, zeit, gegner} }
+  //   data.reservierungen     -> { spielId: { besitzer: {status,bucher,freigegebenAm,gebuchtAm} } }
+  //   data.rundenSichtbarkeit -> { spielId: true }
+  // ====================================================================
+  const SAISON = "Tool_26_27";       // Firestore-Sammlung (für neue Saison ändern)
+  const SAISON_LABEL = "2026/2027";  // Anzeigetext auf der Website
+  const dataRef = doc(db, SAISON, "data");
+  document.getElementById("saisonHinweis").textContent = "Saison " + SAISON_LABEL;
+
+  // ====================================================================
+  // KONSTANTEN (selten ändernd -> im Code)
+  // ====================================================================
+  // 10 Saisonkarten (Ken ist weg). "Thomas-Nico" ist EINE gemeinsame Karte.
+  const kartenBesitzer = [
+    "Peter", "Thomas-Nico", "Chrigi", "Damian", "Dominik",
+    "Pascal", "Hubi", "Jonas", "Zolli", "Ramon"
+  ];
+  // Login-Personen: 9 Einzelbesitzer + Nico + Thomas (teilen sich die Karte)
+  const users = [
+    "Peter", "Chrigi", "Damian", "Dominik", "Pascal",
+    "Hubi", "Jonas", "Zolli", "Ramon", "Nico", "Thomas"
+  ];
+
+  function eigeneKarte(user) {
+    if (user === "Nico" || user === "Thomas") return "Thomas-Nico";
+    return user;
   }
-}
+  function besitzerLabel(b) {
+    return b === "Thomas-Nico" ? "Thomas-Nico (Nico/Thomas)" : b;
+  }
 
+  // Vorlage für den Import-Button (FCSG Heimspiele Brack Super League 2026/27)
+  const defaultHeimspiele = [
+    { runde: 1,  datum: "26.07.2026", zeit: "16:30", gegner: "FC Zürich" },
+    { runde: 3,  datum: "09.08.2026", zeit: "16:30", gegner: "FC Luzern" },
+    { runde: 5,  datum: "30.08.2026", zeit: "16:30", gegner: "FC Thun" },
+    { runde: 8,  datum: "12.09.2026", zeit: "18:00", gegner: "FC Sion" },
+    { runde: 10, datum: "11.10.2026", zeit: "16:30", gegner: "Lausanne-Sport" },
+    { runde: 12, datum: "31.10.2026", zeit: "",      gegner: "Servette FC" },
+    { runde: 13, datum: "07.11.2026", zeit: "",      gegner: "FC Lugano" },
+    { runde: 16, datum: "05.12.2026", zeit: "",      gegner: "Grasshopper Club Zürich" },
+    { runde: 17, datum: "12.12.2026", zeit: "",      gegner: "FC Vaduz" },
+    { runde: 21, datum: "23.01.2027", zeit: "",      gegner: "BSC Young Boys" },
+    { runde: 24, datum: "06.02.2027", zeit: "",      gegner: "FC Basel" },
+  ];
 
-  // Nutzerliste
-  const users = ["Peter", "Thomas-Nico", "Chrigi", "Damian", "Dominik", "Pascal", "Hubi", "Jonas", "Ken", "Zolli", "Ramon", "Nico", "Thomas"];
+  let currentUser = null;
+  let spiele = [];          // [{id, runde, datum, zeit, gegner}]
+  let reservierungen = {};
+  let sichtbarkeit = {};
 
-  // Elemente
+  // ---- DOM ----
   const modeSelectView = document.getElementById("modeSelectView");
-
-  // Saisonkartenbesitzer Login
   const loginView = document.getElementById("loginView");
   const userSelect = document.getElementById("userSelect");
   const btnLogin = document.getElementById("btnLogin");
-
-  // Saisonkartenbesitzer Hauptansicht
   const mainView = document.getElementById("mainView");
   const currentUserDisplay = document.getElementById("currentUserDisplay");
-  const btnLogout = document.getElementById("btnLogout");
   const userOverview = document.getElementById("userOverview");
-  const userOwnBookedList = document.getElementById("userOwnBookedList");
+  const userOwnList = document.getElementById("userOwnList");
   const userBookedOthersList = document.getElementById("userBookedOthersList");
   const gamesContainer = document.getElementById("gamesContainer");
-  const topfList = document.getElementById("topfList");
+  const reservierungsUebersicht = document.getElementById("reservierungsUebersicht");
+  const statistikEl = document.getElementById("statistik");
 
-  // Admin View
   const adminView = document.getElementById("adminView");
-  const btnLogoutAdmin = document.getElementById("btnLogoutAdmin");
   const adminUserInput = document.getElementById("adminUserInput");
   const adminPassInput = document.getElementById("adminPassInput");
-  const btnAdminLogin = document.getElementById("btnAdminLogin");
   const adminError = document.getElementById("adminError");
   const adminContent = document.getElementById("adminContent");
-  const adminUserSelect = document.getElementById("adminUserSelect");
-  const adminBetragInput = document.getElementById("adminBetragInput");
-  const btnAdminSave = document.getElementById("btnAdminSave");
+  const adminGamesList = document.getElementById("adminGamesList");
   const adminStatus = document.getElementById("adminStatus");
+  const addStatus = document.getElementById("addStatus");
 
-  // User Variablen
-  let currentUser = null;
-  let rundenMap = new Map();
+  // ---- Helpers ----
+  function formatTs(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (isNaN(d)) return "";
+    const p = n => String(n).padStart(2, "0");
+    return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  function isoToDe(iso) { // 2026-07-26 -> 26.07.2026
+    if (!iso) return "";
+    const [y, m, d] = iso.split("-");
+    return `${d}.${m}.${y}`;
+  }
+  function deSortKey(de) { // 26.07.2026 -> 20260726
+    const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(de || "");
+    return m ? Number(m[3] + m[2] + m[1]) : 99999999;
+  }
+  // Anstosszeitpunkt als Date (Zeit fehlt -> Standard 16:00 angenommen)
+  function spielDatum(s) {
+    const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s.datum || "");
+    if (!m) return null;
+    const [hh, mm] = (s.zeit && /^\d{2}:\d{2}$/.test(s.zeit)) ? s.zeit.split(":") : ["16", "00"];
+    return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), Number(hh), Number(mm));
+  }
+  function spielLabel(s) {
+    const zeit = s.zeit ? `${s.zeit} Uhr` : "Zeit offen";
+    const runde = (s.runde || s.runde === 0) ? `Runde ${s.runde} – ` : "";
+    return `${runde}${s.datum} – ${zeit} – FC St.Gallen vs ${s.gegner}`;
+  }
+  function getRes(spielId, besitzer) {
+    return reservierungen?.[spielId]?.[besitzer] || null;
+  }
+  function populateSelect(sel) {
+    sel.innerHTML = "";
+    users.forEach(u => {
+      const opt = document.createElement("option");
+      opt.value = u; opt.textContent = u;
+      sel.appendChild(opt);
+    });
+  }
 
-  // Modus Auswahl Buttons
+  async function ladeAlleDaten() {
+    const snap = await getDoc(dataRef);
+    const data = snap.exists() ? snap.data() : {};
+    const spData = data.spiele || {};
+    spiele = Object.entries(spData)
+      .map(([id, v]) => ({ id, ...v }))
+      .sort((a, b) => deSortKey(a.datum) - deSortKey(b.datum));
+    reservierungen = data.reservierungen || {};
+    sichtbarkeit = data.rundenSichtbarkeit || {};
+  }
+
+  // ====================================================================
+  // MODUS / LOGIN
+  // ====================================================================
   document.getElementById("btnBesitzerMode").addEventListener("click", () => {
     modeSelectView.style.display = "none";
     loginView.style.display = "block";
-    populateUserSelect();
+    populateSelect(userSelect);
   });
-
   document.getElementById("btnAdminMode").addEventListener("click", () => {
     modeSelectView.style.display = "none";
     adminView.style.display = "block";
     adminError.textContent = "";
-    adminUserInput.value = "";
-    adminPassInput.value = "";
+    adminUserInput.value = ""; adminPassInput.value = "";
     adminContent.style.display = "none";
   });
-
-  // Spieler Userliste füllen
-  function populateUserSelect() {
-    userSelect.innerHTML = "";
-    users.forEach(u => {
-      const opt = document.createElement("option");
-      opt.value = u;
-      opt.textContent = u;
-      userSelect.appendChild(opt);
-    });
-  }
-
-  // Admin Userliste füllen
-  function populateAdminUserSelect() {
-    adminUserSelect.innerHTML = "";
-    users.forEach(u => {
-      const opt = document.createElement("option");
-      opt.value = u;
-      opt.textContent = u;
-      adminUserSelect.appendChild(opt);
-    });
-  }
-
-  // Saisonkartenbesitzer Login
   btnLogin.addEventListener("click", () => {
     currentUser = userSelect.value;
     currentUserDisplay.textContent = currentUser;
@@ -201,445 +315,610 @@
     mainView.style.display = "block";
     ladeSpiele();
   });
-
-  btnLogout.addEventListener("click", () => {
+  document.getElementById("btnLogout").addEventListener("click", () => {
     currentUser = null;
-    loginView.style.display = "block";
     mainView.style.display = "none";
+    loginView.style.display = "block";
     gamesContainer.innerHTML = "";
-    topfList.innerHTML = "";
+    reservierungsUebersicht.innerHTML = "";
     userOverview.style.display = "none";
   });
 
-  // Admin Login Button
-  btnAdminLogin.addEventListener("click", () => {
+  // ====================================================================
+  // SPIELE LADEN & DARSTELLEN
+  // ====================================================================
+  async function ladeSpiele() {
+    gamesContainer.textContent = "Lade Spiele...";
+    try {
+      await ladeAlleDaten();
+      renderSpiele();
+      renderUebersicht();
+      renderStatistik();
+      renderUserOverview();
+    } catch (err) {
+      gamesContainer.textContent = "Fehler beim Laden: " + err.message;
+    }
+  }
+
+  function statusInfo(spielId, besitzer) {
+    const r = getRes(spielId, besitzer);
+    if (!r || r.status === "belegt") {
+      return { status: "zu", text: `<span class="tag-zu">Nicht freigegeben</span>` };
+    }
+    if (r.status === "frei") {
+      return { status: "frei",
+        text: `<span class="tag-frei">Frei</span><br><span class="muted">freigegeben am ${formatTs(r.freigegebenAm)}</span>` };
+    }
+    if (r.status === "gebucht") {
+      return { status: "gebucht",
+        text: `<span class="tag-gebucht">Gebucht von ${r.bucher}</span><br>` +
+              `<span class="muted">freigegeben ${formatTs(r.freigegebenAm)}` +
+              (r.gebuchtAm ? ` · gebucht ${formatTs(r.gebuchtAm)}` : "") + `</span>` };
+    }
+    return { status: "zu", text: `<span class="tag-zu">Nicht freigegeben</span>` };
+  }
+
+  function renderSpiele() {
+    gamesContainer.innerHTML = "";
+    const sichtbareSpiele = spiele.filter(s => sichtbarkeit[s.id] === true);
+    if (sichtbareSpiele.length === 0) {
+      gamesContainer.innerHTML = "<p>Aktuell sind keine Spiele freigeschaltet.</p>";
+      return;
+    }
+
+    const toggleAllBtn = document.createElement("button");
+    toggleAllBtn.textContent = "Alle öffnen/schliessen";
+    toggleAllBtn.className = "secondary";
+    toggleAllBtn.style.marginBottom = "1rem";
+    toggleAllBtn.onclick = () => {
+      const all = gamesContainer.querySelectorAll("details");
+      const alleOffen = Array.from(all).every(d => d.open);
+      all.forEach(d => d.open = !alleOffen);
+    };
+    gamesContainer.appendChild(toggleAllBtn);
+
+    const meineKarte = currentUser ? eigeneKarte(currentUser) : null;
+
+    sichtbareSpiele.forEach(s => {
+      const details = document.createElement("details");
+      const summary = document.createElement("summary");
+      summary.textContent = spielLabel(s);
+      details.appendChild(summary);
+
+      const table = document.createElement("table");
+      table.innerHTML = `<thead><tr><th>Inhaber</th><th>Status</th><th>Aktion</th></tr></thead>`;
+      const tbody = document.createElement("tbody");
+
+      kartenBesitzer.forEach(besitzer => {
+        const info = statusInfo(s.id, besitzer);
+        const r = getRes(s.id, besitzer);
+        const istMeine = besitzer === meineKarte;
+
+        let actionHTML = "-";
+        if (istMeine && info.status === "zu") {
+          actionHTML = `<button data-action="freigeben" data-spiel="${s.id}" data-besitzer="${besitzer}">Freigeben</button>`;
+        } else if (istMeine && info.status === "frei") {
+          actionHTML = `<button class="danger" data-action="zuruecknehmen" data-spiel="${s.id}" data-besitzer="${besitzer}">Zurücknehmen</button>`;
+        } else if (!istMeine && info.status === "frei") {
+          actionHTML = `<button data-action="buchen" data-spiel="${s.id}" data-besitzer="${besitzer}">Buchen</button>`;
+        } else if (info.status === "gebucht" && r && r.bucher === currentUser) {
+          actionHTML = `<button class="danger" data-action="stornieren" data-spiel="${s.id}" data-besitzer="${besitzer}">Buchung stornieren</button>`;
+        }
+
+        const tr = document.createElement("tr");
+        const label = besitzer === "Thomas-Nico" ? `<span class="shared">${besitzerLabel(besitzer)}</span>` : besitzer;
+        tr.innerHTML = `<td>${label}</td><td>${info.text}</td><td>${actionHTML}</td>`;
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      details.appendChild(table);
+      gamesContainer.appendChild(details);
+    });
+
+    gamesContainer.querySelectorAll("button[data-action]").forEach(btn => {
+      btn.addEventListener("click", e => handleAction(e.currentTarget));
+    });
+  }
+
+  async function handleAction(button) {
+    const action = button.dataset.action;
+    const spielId = button.dataset.spiel;
+    const besitzer = button.dataset.besitzer;
+    if (!action || !spielId || !besitzer) return;
+    button.disabled = true;
+    const jetzt = new Date().toISOString();
+
+    try {
+      if (action === "freigeben") {
+        await setDoc(dataRef, {
+          reservierungen: { [spielId]: { [besitzer]: { status: "frei", bucher: null, freigegebenAm: jetzt, gebuchtAm: null } } }
+        }, { merge: true });
+
+      } else if (action === "zuruecknehmen") {
+        const r = getRes(spielId, besitzer);
+        if (r && r.status === "gebucht") {
+          alert("Die Karte ist bereits gebucht und kann nicht zurückgenommen werden.");
+          button.disabled = false; return;
+        }
+        await updateDoc(dataRef, { [`reservierungen.${spielId}.${besitzer}`]: deleteField() });
+
+      } else if (action === "buchen") {
+        const r = getRes(spielId, besitzer);
+        if (!r || r.status !== "frei") {
+          alert("Diese Karte ist nicht mehr verfügbar.");
+          await ladeSpiele(); return;
+        }
+        await updateDoc(dataRef, {
+          [`reservierungen.${spielId}.${besitzer}.status`]: "gebucht",
+          [`reservierungen.${spielId}.${besitzer}.bucher`]: currentUser,
+          [`reservierungen.${spielId}.${besitzer}.gebuchtAm`]: jetzt
+        });
+
+      } else if (action === "stornieren") {
+        await updateDoc(dataRef, {
+          [`reservierungen.${spielId}.${besitzer}.status`]: "frei",
+          [`reservierungen.${spielId}.${besitzer}.bucher`]: null,
+          [`reservierungen.${spielId}.${besitzer}.gebuchtAm`]: null
+        });
+      }
+      await ladeSpiele();
+    } catch (err) {
+      alert("Fehler beim Speichern: " + err.message);
+      button.disabled = false;
+    }
+  }
+
+  // ====================================================================
+  // ÜBERSICHTEN
+  // ====================================================================
+  function renderUserOverview() {
+    if (!currentUser) { userOverview.style.display = "none"; return; }
+    userOverview.style.display = "block";
+    const meineKarte = eigeneKarte(currentUser);
+
+    userOwnList.innerHTML = "";
+    let eigene = [];
+    spiele.forEach(s => {
+      if (sichtbarkeit[s.id] !== true) return;
+      const r = getRes(s.id, meineKarte);
+      if (r && (r.status === "frei" || r.status === "gebucht")) {
+        const txt = r.status === "frei"
+          ? `frei (freigegeben am ${formatTs(r.freigegebenAm)})`
+          : `gebucht von ${r.bucher} (gebucht am ${formatTs(r.gebuchtAm)})`;
+        eigene.push(`${spielLabel(s)} — ${txt}`);
+      }
+    });
+    if (eigene.length === 0) userOwnList.innerHTML = "<li>Du hast aktuell keine Karte freigegeben.</li>";
+    else eigene.forEach(t => { const li = document.createElement("li"); li.textContent = t; userOwnList.appendChild(li); });
+
+    userBookedOthersList.innerHTML = "";
+    let gebucht = [];
+    spiele.forEach(s => {
+      if (sichtbarkeit[s.id] !== true) return;
+      kartenBesitzer.forEach(b => {
+        if (b === meineKarte) return;
+        const r = getRes(s.id, b);
+        if (r && r.status === "gebucht" && r.bucher === currentUser) {
+          gebucht.push(`${spielLabel(s)} — von ${besitzerLabel(b)} (gebucht am ${formatTs(r.gebuchtAm)})`);
+        }
+      });
+    });
+    if (gebucht.length === 0) userBookedOthersList.innerHTML = "<li>Du hast keine Karten von anderen gebucht.</li>";
+    else gebucht.forEach(t => { const li = document.createElement("li"); li.textContent = t; userBookedOthersList.appendChild(li); });
+  }
+
+  function renderUebersicht() {
+    const sichtbareSpiele = spiele.filter(s => sichtbarkeit[s.id] === true);
+    if (sichtbareSpiele.length === 0) { reservierungsUebersicht.innerHTML = "<p class='muted'>Keine Spiele freigeschaltet.</p>"; return; }
+    const table = document.createElement("table");
+    table.innerHTML = `<thead><tr><th>Spiel</th><th>Freigegeben</th><th>Gebucht</th><th>Noch frei</th></tr></thead>`;
+    const tbody = document.createElement("tbody");
+    sichtbareSpiele.forEach(s => {
+      let frei = 0, gebucht = 0;
+      kartenBesitzer.forEach(b => {
+        const r = getRes(s.id, b);
+        if (r && r.status === "frei") frei++;
+        if (r && r.status === "gebucht") gebucht++;
+      });
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td style="text-align:left">${spielLabel(s)}</td><td>${frei + gebucht}</td><td>${gebucht}</td><td>${frei}</td>`;
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    reservierungsUebersicht.innerHTML = "";
+    reservierungsUebersicht.appendChild(table);
+  }
+
+  function renderStatistik() {
+    // Buchungen pro Person (Käufer) und Freigaben pro Karte (Besitzer),
+    // sowie durchschnittliche Vorlaufzeit der Freigabe vor dem Spiel.
+    const buchungen = {};      // person -> Anzahl gebuchte Karten
+    const freigaben = {};      // besitzer -> Anzahl freigegebene Karten (frei ODER gebucht)
+    const leadSumme = {};      // besitzer -> Summe Vorlauf-Tage
+    const leadAnzahl = {};     // besitzer -> Anzahl mit gültigem Vorlauf
+
+    users.forEach(u => buchungen[u] = 0);
+    kartenBesitzer.forEach(b => { freigaben[b] = 0; leadSumme[b] = 0; leadAnzahl[b] = 0; });
+
+    spiele.forEach(s => {
+      const anstoss = spielDatum(s);
+      kartenBesitzer.forEach(b => {
+        const r = getRes(s.id, b);
+        if (!r) return;
+        if (r.status === "frei" || r.status === "gebucht") {
+          freigaben[b]++;
+          if (r.freigegebenAm && anstoss) {
+            const lead = (anstoss.getTime() - new Date(r.freigegebenAm).getTime()) / 86400000; // Tage
+            if (!isNaN(lead)) { leadSumme[b] += lead; leadAnzahl[b]++; }
+          }
+        }
+        if (r.status === "gebucht" && r.bucher && buchungen[r.bucher] !== undefined) {
+          buchungen[r.bucher]++;
+        }
+      });
+    });
+
+    // Sortierte Listen
+    const buchungsListe = Object.entries(buchungen)
+      .sort((a, b) => b[1] - a[1]);
+    const freigabeListe = Object.entries(freigaben)
+      .sort((a, b) => b[1] - a[1]);
+    const leadListe = kartenBesitzer
+      .map(b => ({ b, schnitt: leadAnzahl[b] ? leadSumme[b] / leadAnzahl[b] : null, n: leadAnzahl[b] }))
+      .filter(x => x.schnitt !== null)
+      .sort((a, b) => b.schnitt - a.schnitt); // grösster Vorlauf = am frühsten
+
+    const fmtTage = d => {
+      if (d >= 1) return `${d.toFixed(1)} Tage`;
+      const std = d * 24;
+      return `${std.toFixed(1)} Std.`;
+    };
+
+    // --- Gesamtzahlen & Spass-Awards ---
+    const gesamtBuchungen = Object.values(buchungen).reduce((a, b) => a + b, 0);
+    const gesamtFreigaben = Object.values(freigaben).reduce((a, b) => a + b, 0);
+
+    // Beliebtestes Spiel (meiste Buchungen)
+    let beliebtestesSpiel = null, maxSpielBuch = 0;
+    spiele.forEach(s => {
+      let c = 0;
+      kartenBesitzer.forEach(b => { const r = getRes(s.id, b); if (r && r.status === "gebucht") c++; });
+      if (c > maxSpielBuch) { maxSpielBuch = c; beliebtestesSpiel = s; }
+    });
+
+    // Last-Minute-König (kleinster Ø Vorlauf)
+    const lastMinute = leadListe.length ? leadListe[leadListe.length - 1] : null;
+    // Frühbucher (grösster Ø Vorlauf)
+    const fruehbucher = leadListe.length ? leadListe[0] : null;
+    // Hamster (meiste Buchungen, > 0)
+    const hamster = buchungsListe.length && buchungsListe[0][1] > 0 ? buchungsListe[0] : null;
+    // Grosszügigste Karte (meiste Freigaben, > 0)
+    const grosszuegig = freigabeListe.length && freigabeListe[0][1] > 0 ? freigabeListe[0] : null;
+
+    const awards = [];
+    if (beliebtestesSpiel) awards.push(`🔥 <strong>Topspiel:</strong> vs ${beliebtestesSpiel.gegner} (${maxSpielBuch} Buchungen)`);
+    if (hamster) awards.push(`🛒 <strong>Schnäppchenjäger:</strong> ${besitzerLabel(hamster[0])} (${hamster[1]} gebucht)`);
+    if (grosszuegig) awards.push(`🤝 <strong>Grosszügigste Karte:</strong> ${besitzerLabel(grosszuegig[0])} (${grosszuegig[1]} freigegeben)`);
+    if (fruehbucher) awards.push(`🦅 <strong>Frühaufsteher:</strong> ${besitzerLabel(fruehbucher.b)} (Ø ${fmtTage(fruehbucher.schnitt)} vorher)`);
+    if (lastMinute && (!fruehbucher || lastMinute.b !== fruehbucher.b)) awards.push(`🐢 <strong>Last-Minute-König:</strong> ${besitzerLabel(lastMinute.b)} (Ø ${fmtTage(lastMinute.schnitt)} vorher)`);
+
+    function rankRows(eintraege, valFmt) {
+      return eintraege.map((e, i) => {
+        const name = besitzerLabel(e[0] ?? e.b);
+        const val = valFmt(e);
+        const medal = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "";
+        return `<tr><td style="text-align:left">${medal}${name}</td><td>${val}</td></tr>`;
+      }).join("");
+    }
+
+    statistikEl.innerHTML = `
+      <div style="display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+        <div style="flex:1; min-width:160px; background:#0d6efd; color:white; border-radius:8px; padding:0.8rem; text-align:center;">
+          <div style="font-size:2rem; font-weight:bold;">${gesamtBuchungen}</div>
+          <div>Buchungen gesamt</div>
+        </div>
+        <div style="flex:1; min-width:160px; background:#198754; color:white; border-radius:8px; padding:0.8rem; text-align:center;">
+          <div style="font-size:2rem; font-weight:bold;">${gesamtFreigaben}</div>
+          <div>Freigaben gesamt</div>
+        </div>
+      </div>
+      ${awards.length ? `<div style="background:#fff3cd; border:1px solid #ffe69c; border-radius:8px; padding:0.6rem 0.9rem; margin-bottom:1rem;">
+        <strong>🏆 Spass-Awards</strong>
+        <ul style="margin:0.4rem 0 0;">${awards.map(a => `<li>${a}</li>`).join("")}</ul>
+      </div>` : ""}
+      <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+        <div style="flex:1; min-width:240px;">
+          <h3 style="color:#084298; margin:0 0 0.3rem;">Meiste Buchungen</h3>
+          <table><thead><tr><th>Person</th><th>Gebucht</th></tr></thead>
+          <tbody>${rankRows(buchungsListe, e => e[1])}</tbody></table>
+        </div>
+        <div style="flex:1; min-width:240px;">
+          <h3 style="color:#084298; margin:0 0 0.3rem;">Meiste Freigaben</h3>
+          <table><thead><tr><th>Karte</th><th>Freigegeben</th></tr></thead>
+          <tbody>${rankRows(freigabeListe, e => e[1])}</tbody></table>
+        </div>
+        <div style="flex:1; min-width:280px;">
+          <h3 style="color:#084298; margin:0 0 0.3rem;">Früheste Freigabe (Ø vor Spiel)</h3>
+          ${leadListe.length === 0
+            ? "<p class='muted'>Noch keine Freigaben.</p>"
+            : `<table><thead><tr><th>Karte</th><th>Ø Vorlauf</th></tr></thead>
+               <tbody>${rankRows(leadListe, e => `${fmtTage(e.schnitt)} <span class="muted">(${e.n})</span>`)}</tbody></table>
+               <p class="muted">Zahl in Klammern = Anzahl ausgewerteter Freigaben.</p>`}
+        </div>
+      </div>`;
+  }
+
+  // ====================================================================
+  // ADMIN
+  // ====================================================================
+  document.getElementById("btnAdminLogin").addEventListener("click", () => {
     const user = adminUserInput.value.trim();
     const pass = adminPassInput.value.trim();
     if (user === "admin" && pass === "fcsg") {
       adminError.textContent = "";
-      adminUserInput.value = "";
-      adminPassInput.value = "";
+      adminUserInput.value = ""; adminPassInput.value = "";
       adminContent.style.display = "block";
-      adminView.style.height = "auto";
-      populateAdminUserSelect();
-      loadAdminUserBetrag();
+      ladeAdminGames();
     } else {
       adminError.textContent = "Falscher Benutzername oder Passwort!";
     }
   });
-
-  btnLogoutAdmin.addEventListener("click", () => {
+  document.getElementById("btnLogoutAdmin").addEventListener("click", () => {
     adminView.style.display = "none";
     modeSelectView.style.display = "block";
     adminContent.style.display = "none";
     adminError.textContent = "";
   });
 
-  // Admin Betrag laden
-  adminUserSelect.addEventListener("change", loadAdminUserBetrag);
-
-  async function loadAdminUserBetrag() {
-    adminStatus.textContent = "Lade Betrag...";
-    const docRef = doc(db, "meta", "zahlungen");
-    const docSnap = await getDoc(docRef);
-
-    if (!docSnap.exists()) {
-      adminStatus.textContent = "Keine Zahlungsdaten gefunden!";
-      adminBetragInput.value = 0;
+  async function ladeAdminGames() {
+    adminGamesList.innerHTML = "Lade...";
+    await ladeAlleDaten();
+    adminGamesList.innerHTML = "";
+    if (spiele.length === 0) {
+      adminGamesList.innerHTML = "<p class='muted'>Noch keine Spiele erfasst. Füge oben Spiele hinzu oder importiere die Heimspiele 2026/27.</p>";
       return;
     }
+    spiele.forEach(s => {
+      const sichtbar = sichtbarkeit[s.id] === true;
+      const row = document.createElement("div");
+      row.className = "adminGameRow";
+      row.innerHTML = `
+        <label style="margin:0; display:flex; align-items:center; gap:0.5rem; flex:1;">
+          <input type="checkbox" data-spiel="${s.id}" ${sichtbar ? "checked" : ""} style="width:auto;">
+          <span>${spielLabel(s)}</span>
+        </label>
+        <button class="danger" data-del="${s.id}">Löschen</button>`;
+      adminGamesList.appendChild(row);
+    });
 
-    const data = docSnap.data();
-    const user = adminUserSelect.value;
-    if (data[user]) {
-      let gesamt = 0;
-for (const eintrag of Object.values(data[user] || {})) {
-  if (eintrag && eintrag.betrag) gesamt += Number(eintrag.betrag);
-}
-adminBetragInput.value = gesamt;
-document.getElementById("adminZahlungsdatumInput").value = "";
-      adminStatus.textContent = "";
-    } else {
-      adminBetragInput.value = 0;
-      adminStatus.textContent = "User nicht gefunden in Zahlungen!";
-    }
+    adminGamesList.querySelectorAll("input[type=checkbox]").forEach(cb => {
+      cb.addEventListener("change", async e => {
+        const spielId = e.target.dataset.spiel;
+        adminStatus.className = "ok";
+        adminStatus.textContent = "Speichere...";
+        try {
+          await setDoc(dataRef, { rundenSichtbarkeit: { [spielId]: e.target.checked } }, { merge: true });
+          sichtbarkeit[spielId] = e.target.checked;
+          adminStatus.textContent = "Gespeichert.";
+        } catch (err) {
+          adminStatus.className = "error";
+          adminStatus.textContent = "Fehler: " + err.message;
+          e.target.checked = !e.target.checked;
+        }
+      });
+    });
+
+    adminGamesList.querySelectorAll("button[data-del]").forEach(btn => {
+      btn.addEventListener("click", async e => {
+        const spielId = e.target.dataset.del;
+        const s = spiele.find(x => x.id === spielId);
+        if (!confirm(`Spiel wirklich löschen?\n${s ? spielLabel(s) : spielId}\n\nAuch alle Reservierungen dazu werden entfernt.`)) return;
+        adminStatus.className = "ok";
+        adminStatus.textContent = "Lösche...";
+        try {
+          await updateDoc(dataRef, {
+            [`spiele.${spielId}`]: deleteField(),
+            [`rundenSichtbarkeit.${spielId}`]: deleteField(),
+            [`reservierungen.${spielId}`]: deleteField()
+          });
+          adminStatus.textContent = "Spiel gelöscht.";
+          ladeAdminGames();
+        } catch (err) {
+          adminStatus.className = "error";
+          adminStatus.textContent = "Fehler: " + err.message;
+        }
+      });
+    });
   }
 
-  // Admin Betrag speichern
-  btnAdminSave.addEventListener("click", async () => {
-    const user = adminUserSelect.value;
-    const betrag = parseFloat(adminBetragInput.value);
-    if (isNaN(betrag) || betrag < 0) {
-      adminStatus.textContent = "Bitte einen gültigen Betrag eingeben!";
-      return;
-    }
+  // Einzelnes Spiel hinzufügen (wird sofort sichtbar gesetzt)
+  document.getElementById("btnAddSpiel").addEventListener("click", async () => {
+    const runde = parseInt(document.getElementById("addRunde").value);
+    const datumIso = document.getElementById("addDatum").value;
+    const zeit = document.getElementById("addZeit").value || "";
+    const gegner = document.getElementById("addGegner").value.trim();
 
-    adminStatus.textContent = "Speichere...";
+    if (!datumIso || !gegner) { addStatus.className = "error"; addStatus.textContent = "Bitte mindestens Datum und Gegner angeben."; return; }
 
-    const docRef = doc(db, "meta", "zahlungen");
-    const docSnap = await getDoc(docRef);
-
-    if (!docSnap.exists()) {
-      adminStatus.textContent = "Keine Zahlungsdaten vorhanden, bitte Setup neu ausführen.";
-      return;
-    }
-
-    const data = docSnap.data();
-    const zahlungsdatum = document.getElementById("adminZahlungsdatumInput").value;
-if (!data[user]) data[user] = {};
-data[user][zahlungsdatum] = { zahler: user, betrag: betrag };
-
+    const id = "g" + Date.now().toString(36);
+    addStatus.className = "ok"; addStatus.textContent = "Speichere...";
     try {
-      await updateDoc(docRef, data);
-      adminStatus.textContent = "Erfolgreich gespeichert!";
+      await setDoc(dataRef, {
+        spiele: { [id]: { runde: isNaN(runde) ? null : runde, datum: isoToDe(datumIso), zeit, gegner } },
+        rundenSichtbarkeit: { [id]: true }
+      }, { merge: true });
+      addStatus.textContent = "Spiel hinzugefügt und sichtbar geschaltet.";
+      document.getElementById("addRunde").value = "";
+      document.getElementById("addDatum").value = "";
+      document.getElementById("addZeit").value = "";
+      document.getElementById("addGegner").value = "";
+      ladeAdminGames();
     } catch (err) {
-      adminStatus.textContent = "Fehler beim Speichern: " + err.message;
+      addStatus.className = "error"; addStatus.textContent = "Fehler: " + err.message;
     }
   });
 
-  // === Spiele laden & darstellen ===
-  async function ladeSpiele() {
-    gamesContainer.textContent = "Lade Spiele...";
-    const datenRef = doc(db, "meta", "daten");
-    const zahlungenRef = doc(db, "meta", "zahlungen");
-
+  // Standard-Heimspiele importieren (nur was noch nicht existiert; standardmässig NICHT sichtbar)
+  document.getElementById("btnImportDefault").addEventListener("click", async () => {
+    addStatus.className = "ok"; addStatus.textContent = "Importiere...";
     try {
-      const [datenSnap, zahlungenSnap] = await Promise.all([getDoc(datenRef), getDoc(zahlungenRef)]);
-
-      if (!datenSnap.exists()) {
-        gamesContainer.textContent = "Keine Spieldaten gefunden";
-        topfList.innerHTML = "";
-        userOverview.style.display = "none";
-        return;
-      }
-
-      const daten = datenSnap.data();
-      const zahlungen = zahlungenSnap.exists() ? zahlungenSnap.data() : {};
-
-      let eintraegeRaw = daten.eintraege || [];
-const eintraege = Array.isArray(eintraegeRaw)
-  ? eintraegeRaw
-  : Object.values(eintraegeRaw);
-
-      rundenMap = new Map();
-      eintraege.forEach(e => {
-        const runde = e.spiel.split(" – ")[0];
-        if (!runde) return;
-        if (!rundenMap.has(runde)) rundenMap.set(runde, []);
-        rundenMap.get(runde).push(e);
+      await ladeAlleDaten();
+      const vorhanden = new Set(spiele.map(s => `${s.datum}|${s.gegner}`));
+      const neueSpiele = {};
+      let count = 0;
+      defaultHeimspiele.forEach((s, i) => {
+        const key = `${s.datum}|${s.gegner}`;
+        if (!vorhanden.has(key)) {
+          const id = "g" + (Date.now() + i).toString(36);
+          neueSpiele[id] = { runde: s.runde, datum: s.datum, zeit: s.zeit, gegner: s.gegner };
+          count++;
+        }
       });
-
-      renderSpiele();
-      berechneBuchungen(eintraege, zahlungen);
-      updateUserOverview(eintraege);
-    } catch(err) {
-      gamesContainer.textContent = "Fehler beim Laden der Daten: " + err.message;
+      if (count === 0) { addStatus.textContent = "Alle Heimspiele 2026/27 sind bereits erfasst."; return; }
+      await setDoc(dataRef, { spiele: neueSpiele }, { merge: true });
+      addStatus.textContent = `${count} Spiel(e) importiert. Sie sind noch ausgeblendet – unten anhaken, um sie freizuschalten.`;
+      ladeAdminGames();
+    } catch (err) {
+      addStatus.className = "error"; addStatus.textContent = "Fehler: " + err.message;
     }
-  }
-
-async function renderSpiele() {
-  gamesContainer.innerHTML = "";
-
-  const sichtbareRunden = await ladeSichtbareRunden(); // 🔥 neue Sichtbarkeitsabfrage
-
-  const toggleAllBtn = document.createElement("button");
-  toggleAllBtn.textContent = "Alle öffnen/schließen";
-  toggleAllBtn.style.marginBottom = "1rem";
-  toggleAllBtn.onclick = () => {
-    const allDetails = gamesContainer.querySelectorAll("details");
-    const alleOffen = Array.from(allDetails).every(d => d.open);
-    allDetails.forEach(d => d.open = !alleOffen);
-  };
-  gamesContainer.appendChild(toggleAllBtn);
-
-  rundenMap.forEach((spiele, runde) => {
-    if (!sichtbareRunden.has(runde)) return; // ❗ Runde ausblenden wenn false
-
-    const details = document.createElement("details");
-    details.style.background = "#0d6efd";
-    details.style.color = "white";
-
-    const summary = document.createElement("summary");
-    summary.textContent = spiele[0]?.spiel || runde;
-    details.appendChild(summary);
-
-    const table = document.createElement("table");
-    const thead = document.createElement("thead");
-    thead.innerHTML = `<tr><th>Spiel</th><th>Inhaber</th><th>Status</th><th>Aktion</th></tr>`;
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-    spiele.forEach((eintrag, idx) => {
-      const tr = document.createElement("tr");
-
-      const statusText = eintrag.status === "frei" ? `Frei (von ${eintrag.besitzer})`
-                        : (eintrag.status === "belegt" ? "Nicht freigegeben"
-                        : `Gebucht von ${eintrag.bucher}`);
-
-      let actionHTML = "-";
-      if (eintrag.besitzer === currentUser && eintrag.status === "belegt") {
-        actionHTML = `<button data-index="${idx}" data-runde="${runde}">Freigeben</button>`;
-      } else if (eintrag.status === "frei" && eintrag.besitzer !== currentUser && !eintrag.bucher) {
-        actionHTML = `<button data-index="${idx}" data-runde="${runde}">Buchen</button>`;
-      } else if (eintrag.status === "gebucht" && eintrag.bucher === currentUser) {
-        actionHTML = `<button data-index="${idx}" data-runde="${runde}">Wieder freigeben</button>`;
-      } else if (eintrag.status === "frei" && eintrag.besitzer === currentUser) {
-        actionHTML = `<button data-index="${idx}" data-runde="${runde}">Zurücknehmen</button>`;
-      }
-
-      tr.innerHTML = `
-        <td>${eintrag.spiel}</td>
-        <td>${eintrag.besitzer}</td>
-        <td>${statusText}</td>
-        <td>${actionHTML}</td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-    table.appendChild(tbody);
-    details.appendChild(table);
-    gamesContainer.appendChild(details);
   });
 
-  // Event Listener für Buttons
-  gamesContainer.querySelectorAll("button").forEach(btn => {
-    btn.addEventListener("click", async e => {
-      const button = e.currentTarget;
-      const idx = parseInt(button.dataset.index);
-      const runde = button.dataset.runde;
-      if (isNaN(idx) || !runde) return;
+  // ====================================================================
+  // NAVIGATION
+  // ====================================================================
+  document.getElementById("btnBackToStart1")?.addEventListener("click", () => {
+    loginView.style.display = "none"; modeSelectView.style.display = "block";
+  });
+  document.getElementById("btnBackToStart2")?.addEventListener("click", () => {
+    mainView.style.display = "none"; modeSelectView.style.display = "block"; currentUser = null;
+  });
+  document.getElementById("btnBackToStartAdmin")?.addEventListener("click", () => {
+    adminView.style.display = "none"; modeSelectView.style.display = "block";
+  });
 
-      const spieleDerRunde = rundenMap.get(runde);
-      if (!spieleDerRunde) return;
+  // ====================================================================
+  // MINI-GAME: Penalty-Challenge (20 Schüsse, Ziel + Power-Timing)
+  // Leaderboard wird pro Saison in Firestore (data.leaderboard) gespeichert.
+  // ====================================================================
+  (function penaltyGame() {
+    const ANZAHL = 20;
+    const cols = ["Links", "Mitte", "Rechts"];
+    const rows = ["Hoch", "Halbhoch", "Flach"];
 
-      const eintrag = spieleDerRunde[idx];
+    let schuss = 0, tore = 0, running = true, gespeichert = false;
 
-      if (button.textContent === "Freigeben") {
-        eintrag.status = "frei";
-        eintrag.bucher = null;
-      } else if (button.textContent === "Buchen") {
-        eintrag.status = "gebucht";
-        eintrag.bucher = currentUser;
-      } else if (button.textContent === "Zurücknehmen") {
-        eintrag.status = "belegt";
-        eintrag.bucher = null;
-      } else if (button.textContent === "Wieder freigeben") {
-        eintrag.status = "frei";
-        eintrag.bucher = null;
+    const scoreEl = document.getElementById("penaltyScore");
+    const fieldEl = document.getElementById("penaltyField");
+    const msgEl = document.getElementById("penaltyMsg");
+    const gridEl = document.getElementById("penaltyGrid");
+    const resetBtn = document.getElementById("penaltyReset");
+    const lbEl = document.getElementById("penaltyLeaderboard");
+
+    // Ziel-Raster (3x3): Klick = sofort schiessen (reine Glückssache)
+    gridEl.innerHTML = "";
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const b = document.createElement("button");
+        b.textContent = "🎯";
+        b.title = `${rows[r]} ${cols[c]}`;
+        b.dataset.r = r; b.dataset.c = c;
+        b.style.padding = "0.6rem 0";
+        b.addEventListener("click", () => schiessen(r, c));
+        gridEl.appendChild(b);
+      }
+    }
+
+    function updateScore() {
+      if (schuss < ANZAHL) scoreEl.textContent = `Schuss ${schuss + 1} von ${ANZAHL} · Tore: ${tore}`;
+      else scoreEl.textContent = `Fertig! ${tore} von ${ANZAHL} Toren`;
+    }
+
+    function schiessen(r, c) {
+      if (!running || schuss >= ANZAHL) return;
+      schuss++;
+      fieldEl.innerHTML = c === 0 ? "⚽&nbsp;&nbsp;🧤&nbsp;&nbsp;🥅" : c === 2 ? "🥅&nbsp;&nbsp;🧤&nbsp;&nbsp;⚽" : "🥅&nbsp;⚽🧤&nbsp;🥅";
+
+      // Reine Glückssache: zufälliger Goalie + zufälliger Würfel
+      const kCol = Math.floor(Math.random() * 3);
+      const kRow = Math.floor(Math.random() * 3);
+      const roll = Math.random();
+
+      let ergebnis;
+      if (roll < 0.10) {
+        ergebnis = "daneben";                 // Pech: Ball daneben
+      } else if (c === kCol && Math.random() < 0.78) {
+        ergebnis = "gehalten";                // Goalie in richtiger Ecke -> meist gehalten
+      } else {
+        ergebnis = "tor";                     // sonst Tor
+        tore++;
       }
 
-      let alleEintraege = [];
-      rundenMap.forEach(arr => alleEintraege = alleEintraege.concat(arr));
+      if (ergebnis === "tor") msgEl.innerHTML = `⚽ <span class="tag-frei">TOOOR!</span> <span class="muted">(Goalie nach ${cols[kCol]})</span>`;
+      else if (ergebnis === "gehalten") msgEl.innerHTML = `🧤 <span class="tag-gebucht">Gehalten!</span> <span class="muted">(Goalie nach ${cols[kCol]} – Pech!)</span>`;
+      else msgEl.innerHTML = `🙈 <span class="tag-gebucht">Daneben!</span> <span class="muted">(Pech gehabt)</span>`;
 
+      updateScore();
+      if (schuss >= ANZAHL) ende();
+    }
+
+    async function ende() {
+      running = false;
+      gridEl.querySelectorAll("button").forEach(b => b.disabled = true);
+      let fazit = tore === 20 ? " 🏆 LEGENDE – unfassbares Glück!" : tore >= 16 ? " 🔥 Glückspilz!" : tore >= 12 ? " 👏 Stark!" : tore >= 7 ? " 🙂 Solide." : " 😅 Pechvogel!";
+      msgEl.innerHTML += `<br><strong>Endstand: ${tore}/${ANZAHL}.${fazit}</strong>`;
+      resetBtn.style.display = "inline-block";
+      if (!gespeichert) {
+        gespeichert = true;
+        const name = currentUser || "Gast";
+        msgEl.innerHTML += `<br><span class="muted">Speichere Ergebnis für ${name} im Leaderboard...</span>`;
+        try { await speichereScore(name, tore); } catch (e) { /* ignore */ }
+        renderLeaderboard();
+      }
+    }
+
+    resetBtn.addEventListener("click", () => {
+      schuss = 0; tore = 0; running = true; gespeichert = false;
+      fieldEl.innerHTML = "🥅&nbsp;&nbsp;🧤&nbsp;&nbsp;⚽";
+      msgEl.textContent = "";
+      gridEl.querySelectorAll("button").forEach(b => b.disabled = false);
+      resetBtn.style.display = "none";
+      updateScore();
+    });
+
+    async function ladeLeaderboard() {
+      const snap = await getDoc(dataRef);
+      const d = snap.exists() ? snap.data() : {};
+      return Array.isArray(d.leaderboard) ? d.leaderboard : [];
+    }
+    async function speichereScore(name, t) {
+      const lb = await ladeLeaderboard();
+      lb.push({ name, tore: t, datum: new Date().toISOString() });
+      lb.sort((a, b) => b.tore - a.tore || new Date(a.datum) - new Date(b.datum));
+      await setDoc(dataRef, { leaderboard: lb.slice(0, 25) }, { merge: true });
+    }
+    async function renderLeaderboard() {
       try {
-        await updateDoc(doc(db, "meta", "daten"), {
-          eintraege: alleEintraege
-        });
-        alert("Erfolgreich aktualisiert!");
-        ladeSpiele();
-      } catch (err) {
-        alert("Fehler beim Speichern: " + err.message);
+        const lb = await ladeLeaderboard();
+        if (lb.length === 0) { lbEl.innerHTML = "<p class='muted'>Noch keine Einträge – sei der Erste!</p>"; return; }
+        const top = lb.slice(0, 10);
+        const rowsHtml = top.map((e, i) => {
+          const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1) + ".";
+          const dt = formatTs(e.datum).split(" ")[0];
+          return `<tr><td>${medal}</td><td style="text-align:left">${e.name}</td><td>${e.tore}/20</td><td class="muted">${dt}</td></tr>`;
+        }).join("");
+        lbEl.innerHTML = `<table><thead><tr><th>#</th><th>Name</th><th>Tore</th><th>Datum</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
+      } catch (e) {
+        lbEl.innerHTML = "<p class='muted'>Leaderboard konnte nicht geladen werden.</p>";
       }
-    });
-  });
-}
-
-
-  function berechneBuchungen(eintraege, zahlungen) {
-    const buchungen = {};
-    users.forEach(u => buchungen[u] = 0);
-
-    eintraege.forEach(e => {
-      if (e.bucher) {
-        buchungen[e.bucher] = (buchungen[e.bucher] || 0) + 1;
-      }
-    });
-
-    topfList.innerHTML = "";
-    let gesamtBuchungenBetrag = 0;
-    let gesamtBezahlungenBetrag = 0;
-    let gesamtOffenerBetrag = 0;
-
-    const table = document.createElement("table");
-    table.style.width = "100%";
-    table.style.borderCollapse = "collapse";
-
-    const thead = document.createElement("thead");
-    thead.innerHTML = `<tr>
-      <th>User</th>
-      <th>Buchungen</th>
-      <th>Bezahlungen (CHF)</th>
-      <th>Offener Betrag (CHF)</th>
-    </tr>`;
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-
-    users.forEach(u => {
-      const anzahl = buchungen[u];
-      const buchungsBetrag = anzahl * 15;
-      let bezahlterBetrag = 0;
-if (zahlungen[u]) {
-  for (const eintrag of Object.values(zahlungen[u])) {
-    if (eintrag && eintrag.betrag) {
-      bezahlterBetrag += Number(eintrag.betrag);
-    }
-  }
-}
-      const offenerBetrag = buchungsBetrag - bezahlterBetrag;
-
-      gesamtBuchungenBetrag += buchungsBetrag;
-      gesamtBezahlungenBetrag += bezahlterBetrag;
-      gesamtOffenerBetrag += offenerBetrag;
-    ladeBierpoolDaten(gesamtBezahlungenBetrag);
-
-      const tr = document.createElement("tr");
-
-      tr.innerHTML = `
-        <td>${u}</td>
-        <td>${buchungsBetrag} CHF (${anzahl} Buchungen)</td>
-        <td>${bezahlterBetrag} CHF</td>
-        <td>${offenerBetrag} CHF</td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-
-    // Gesamtzeile
-    const trGesamt = document.createElement("tr");
-    trGesamt.style.fontWeight = "bold";
-    trGesamt.innerHTML = `
-      <td>Gesamt</td>
-      <td>${gesamtBuchungenBetrag} CHF</td>
-      <td>${gesamtBezahlungenBetrag} CHF</td>
-      <td>${gesamtOffenerBetrag} CHF</td>
-    `;
-    tbody.appendChild(trGesamt);
-
-    table.appendChild(tbody);
-    topfList.appendChild(table);
-  }
-
-  function updateUserOverview(eintraege) {
-    if (!currentUser) {
-      userOverview.style.display = "none";
-      return;
-    }
-    userOverview.style.display = "block";
-
-    const ownBooked = eintraege.filter(e => e.besitzer === currentUser && e.status === "gebucht" && e.bucher && e.bucher !== currentUser);
-    const bookedOthers = eintraege.filter(e => e.bucher === currentUser && e.besitzer !== currentUser);
-
-    userOwnBookedList.innerHTML = "";
-    if (ownBooked.length === 0) {
-      userOwnBookedList.innerHTML = "<li>Keine Buchungen auf deine Karten.</li>";
-    } else {
-      ownBooked.forEach(e => {
-        const li = document.createElement("li");
-        li.textContent = `${e.spiel} - gebucht von ${e.bucher}`;
-        userOwnBookedList.appendChild(li);
-      });
     }
 
-    userBookedOthersList.innerHTML = "";
-    if (bookedOthers.length === 0) {
-      userBookedOthersList.innerHTML = "<li>Keine gebuchten Karten von anderen.</li>";
-    } else {
-      bookedOthers.forEach(e => {
-        const li = document.createElement("li");
-        li.textContent = `${e.spiel} - von ${e.besitzer}`;
-        userBookedOthersList.appendChild(li);
-      });
-    }
-  }
+    updateScore();
+    renderLeaderboard();
+  })();
 
-  // Initiale User-Select füllen
-  populateUserSelect();
-
-  // Zeige Modus-Auswahl
+  populateSelect(userSelect);
   modeSelectView.style.display = "block";
-
-
-
-document.getElementById("btnBackToStart1")?.addEventListener("click", () => {
-  loginView.style.display = "none";
-  modeSelectView.style.display = "block";
-});
-
-document.getElementById("btnBackToStart2")?.addEventListener("click", () => {
-  mainView.style.display = "none";
-  modeSelectView.style.display = "block";
-  currentUser = null;
-});
-
-
-document.getElementById("btnBackToStartAdmin")?.addEventListener("click", () => {
-  adminView.style.display = "none";
-  modeSelectView.style.display = "block";
-});
-
-
-async function ladeBierpoolDaten(gesamtZahlungenBetrag = 0) {
-  const bierRef = doc(db, "meta", "bierpool");
-  const bierSnap = await getDoc(bierRef);
-
-  const tbody = document.querySelector("#bierHistorieTabelle tbody");
-  const bierBudgetText = document.getElementById("bierBudgetText");
-  tbody.innerHTML = "";
-
-  let gesamtAusgaben = 0;
-
-  if (bierSnap.exists()) {
-    const daten = bierSnap.data();
-    const eintraege = Object.entries(daten)
-      .filter(([datum]) => /^\d{4}-\d{2}-\d{2}$/.test(datum))
-      .sort(([a], [b]) => b.localeCompare(a));
-
-    eintraege.forEach(([datum, betrag]) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `<td>${datum}</td><td>${betrag} CHF</td>`;
-      tbody.appendChild(row);
-      gesamtAusgaben += parseFloat(betrag) || 0;
-    });
-  }
-
-  const budget = (gesamtZahlungenBetrag - gesamtAusgaben).toFixed(2);
-  bierBudgetText.textContent = `Aktuelles Budget: CHF ${budget}`;
-}
-
-
-document.getElementById("btnSaveBierpool")?.addEventListener("click", async () => {
-  const datum = document.getElementById("bierDatumInput").value;
-  const betrag = parseFloat(document.getElementById("bierBetragInput").value);
-  const status = document.getElementById("bierpoolStatus");
-
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(datum)) {
-    status.textContent = "Bitte ein gültiges Datum eingeben.";
-    return;
-  }
-
-  if (isNaN(betrag) || betrag <= 0) {
-    status.textContent = "Bitte einen gültigen Betrag eingeben.";
-    return;
-  }
-
-  status.textContent = "Speichere...";
-
-  const ref = doc(db, "meta", "bierpool");
-  const snap = await getDoc(ref);
-  const data = snap.exists() ? snap.data() : {};
-  data[datum] = betrag;
-
-  try {
-    await updateDoc(ref, data);
-    status.textContent = "Eintrag gespeichert!";
-    document.getElementById("bierDatumInput").value = "";
-    document.getElementById("bierBetragInput").value = "";
-    ladeBierpoolDaten(); // Refresh Übersicht
-  } catch (err) {
-    status.textContent = "Fehler beim Speichern: " + err.message;
-  }
-});
 </script>
 </body>
 </html>
