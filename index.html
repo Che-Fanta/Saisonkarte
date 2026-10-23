@@ -72,19 +72,13 @@
   .addForm input[type=number] { width:90px; }
   .addForm input[type=time] { width:120px; }
   #penaltyGrid button { border-radius: 8px; }
-  .kopf { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
-  .kopf { position: relative; min-height: 440px; border-radius: 16px; overflow: hidden; margin: 0 0 1.4rem; padding: 1.5rem 1.8rem;
-    align-items: flex-end; border: 3px solid rgba(255,255,255,0.85); box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-    background: linear-gradient(90deg, #0b4a22 0%, #0b4a22 34%, rgba(11,74,34,0.6) 44%, rgba(11,74,34,0) 56%),
-                url("fcsg-pokal.jpg?v=2") right top / auto 108% no-repeat, #0a3a1c; }
-  .kopf-text { max-width: 45%; align-self: center; }
-  .kopf h1 { font-size: clamp(2.2rem, 5vw, 3.8rem); margin-bottom: 0.6rem; }
-  .kopf .saison { font-size: 1.05rem; text-shadow: 0 2px 6px rgba(0,0,0,0.8); }
-  @media (max-width: 700px) {
-    .kopf-text { max-width: none; align-self: flex-end; }
-    .kopf { min-height: 300px; padding: 1rem; background: linear-gradient(0deg, rgba(6,36,15,0.95) 0%, rgba(6,36,15,0.6) 40%, rgba(6,36,15,0) 70%),
-      url("fcsg-pokal.jpg?v=2") 50% 10% / cover no-repeat, var(--gruen); }
-  }
+  .kopf { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: nowrap; margin-bottom: 0.8rem; }
+  .kopf { align-items: center; padding: 0.4rem 0.2rem 0.6rem; }
+  .kopf-text { flex: 1; }
+  .poster { height: 170px; width: auto; border: 5px solid white; border-radius: 8px; transform: rotate(4deg); margin: 0.4rem 0.8rem 0.4rem 0;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5); transition: transform 0.2s; }
+  .poster:hover { transform: rotate(0) scale(1.05); }
+  @media (max-width: 600px) { .poster { height: 120px; } }
   .made-by { text-align: center; margin: 2.5rem 0 1rem; }
   .made-by a { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.45rem 1rem 0.45rem 0.5rem; background: white; border-radius: 999px;
     box-shadow: 0 1px 4px rgba(0,29,59,0.15); text-decoration: none; transition: box-shadow 0.2s, transform 0.2s; }
@@ -103,6 +97,7 @@
     <h1>Saisonkarten Verwaltung</h1>
     <p class="saison" id="saisonHinweis"></p>
   </div>
+  <img src="fcsg-pokal.jpg?v=3" alt="" class="poster"/>
 </header>
 
 <!-- Modus Auswahl -->
