@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>Saisonkarten Verwaltung</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Bebas+Neue&family=Kaushan+Script&family=Permanent+Marker&family=Rubik+Wet+Paint&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Bebas+Neue&family=Permanent+Marker&display=swap" rel="stylesheet"/>
 <style>
   /* FCSG-Look: Grün-Weiss, Graffiti-Titel, Spray-Hintergrund */
   :root { --gruen:#00873e; --gruen-hell:#3ddc6f; --gruen-dunkel:#0b3d1f; --nacht:#06240f; --weiss:#fff; --rot:#c8102e; }
@@ -73,23 +73,6 @@
   .addForm input[type=time] { width:120px; }
   #penaltyGrid button { border-radius: 8px; }
   .kopf { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
-  /* Graffiti nachgebaut mit Schriften (keine Fotos) */
-  .graffiti { display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.6rem 0.8rem 0; }
-  .piece { display: flex; flex-direction: column; align-items: center; line-height: 0.9; }
-  .p1 { transform: rotate(-4deg); }
-  .g-script { font-family: "Kaushan Script", cursive; font-size: 2.1rem; color: #f4f1ea; -webkit-text-stroke: 1.5px #1b1b1b; paint-order: stroke fill;
-    text-shadow: 2px 3px 0 #1b1b1b, 0 0 10px rgba(255,255,255,0.25); }
-  .g-drip { font-family: "Rubik Wet Paint", "Permanent Marker", cursive; font-size: 2.9rem; color: var(--gruen-hell); letter-spacing: 0.02em;
-    -webkit-text-stroke: 2px #0a2312; paint-order: stroke fill; text-shadow: 3px 4px 0 #0a2312, 0 0 18px rgba(61,220,111,0.6); margin-top: 0.15rem; }
-  .g-jahr { font-family: "Permanent Marker", cursive; font-size: 1.6rem; color: #f4f1ea; -webkit-text-stroke: 1.5px #1b1b1b; paint-order: stroke fill;
-    text-shadow: 2px 2px 0 #1b1b1b; transform: rotate(-3deg); margin-top: 0.2rem; }
-  .p2 { transform: rotate(-12deg); position: relative; padding: 0 0.3rem; }
-  .p2::before { content: ""; position: absolute; left: -8%; right: -8%; top: 52%; height: 5px; background: #f4f1ea; border: 1.5px solid #1b1b1b;
-    border-radius: 3px; transform: rotate(-8deg); box-shadow: 2px 2px 0 #1b1b1b; }
-  .g-tag { font-family: "Permanent Marker", cursive; font-size: 2.3rem; color: #f4f1ea; -webkit-text-stroke: 2px #1b1b1b; paint-order: stroke fill;
-    text-shadow: 3px 3px 0 #1b1b1b, 5px 5px 0 var(--gruen); position: relative; }
-  .g-tag.g2 { margin-left: 1.4rem; }
-  @media (max-width: 600px) { .g-script { font-size: 1.5rem; } .g-drip { font-size: 2rem; } .g-jahr { font-size: 1.2rem; } .g-tag { font-size: 1.6rem; } }
   @media (min-width: 760px) { .kopf { flex-wrap: nowrap; } .kopf h1 { font-size: clamp(2rem, 4.6vw, 3.4rem); } }
   .made-by { text-align: center; margin: 2.5rem 0 1rem; }
   .made-by a { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.45rem 1rem 0.45rem 0.5rem; background: white; border-radius: 999px;
@@ -108,17 +91,6 @@
   <div class="kopf-text">
     <h1>Saisonkarten Verwaltung</h1>
     <p class="saison" id="saisonHinweis"></p>
-  </div>
-  <div class="graffiti" aria-hidden="true">
-    <div class="piece p1">
-      <span class="g-script">Fussballclub</span>
-      <span class="g-drip">ST.GALLEN</span>
-      <span class="g-jahr">1879</span>
-    </div>
-    <div class="piece p2">
-      <span class="g-tag">Sankt</span>
-      <span class="g-tag g2">Gallen</span>
-    </div>
   </div>
 </header>
 
