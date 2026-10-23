@@ -75,10 +75,11 @@
   .kopf { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: nowrap; margin-bottom: 0.8rem; }
   .kopf { align-items: center; padding: 0.4rem 0.2rem 0.6rem; }
   .kopf-text { flex: 1; }
-  .poster { height: 260px; width: auto; border: 5px solid white; border-radius: 8px; transform: rotate(4deg); margin: 0.4rem 0.8rem 0.4rem 0;
+  .poster { height: 340px; width: auto; border: 5px solid white; border-radius: 8px; transform: rotate(4deg); margin: 0.4rem 0.8rem 0.4rem 0;
     box-shadow: 0 8px 20px rgba(0,0,0,0.5); transition: transform 0.2s; }
   .poster:hover { transform: rotate(0) scale(1.05); }
-  @media (max-width: 600px) { .poster { height: 160px; } }
+  @media (max-width: 600px) { .poster { height: 190px; } }
+  .konfetti { position: fixed; top: 0; left: 0; width: 9px; height: 14px; pointer-events: none; z-index: 9999; border-radius: 2px; will-change: transform, opacity; }
   .made-by { text-align: center; margin: 2.5rem 0 1rem; }
   .made-by a { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.45rem 1rem 0.45rem 0.5rem; background: white; border-radius: 999px;
     box-shadow: 0 1px 4px rgba(0,29,59,0.15); text-decoration: none; transition: box-shadow 0.2s, transform 0.2s; }
@@ -97,7 +98,7 @@
     <h1>Saisonkarten Verwaltung</h1>
     <p class="saison" id="saisonHinweis"></p>
   </div>
-  <img src="fcsg-pokal.jpg?v=4" alt="" class="poster"/>
+  <img src="fcsg-pokal.jpg?v=4" alt="" class="poster" id="poster"/>
 </header>
 
 <!-- Modus Auswahl -->
@@ -208,6 +209,37 @@
   </a>
 </footer>
 
+<script>
+  // Konfettiregen grün-weiss beim Darüberfahren über das Poster (max. alle 1.5 s)
+  (() => {
+    const poster = document.getElementById("poster");
+    if (!poster || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const farben = ["#00a84f", "#3ddc6f", "#ffffff", "#f4f1ea", "#7dff9e"];
+    let zuletzt = 0;
+    const regen = () => {
+      if (Date.now() - zuletzt < 1500) return;
+      zuletzt = Date.now();
+      const r = poster.getBoundingClientRect();
+      for (let i = 0; i < 90; i++) {
+        const k = document.createElement("div");
+        k.className = "konfetti";
+        k.style.background = farben[i % farben.length];
+        if (i % 3 === 0) { k.style.width = k.style.height = "8px"; k.style.borderRadius = "50%"; }
+        document.body.appendChild(k);
+        const x0 = r.left + Math.random() * r.width, y0 = r.top - 20 - Math.random() * 60;
+        const dx = (Math.random() - 0.5) * 360, dy = window.innerHeight - y0 + 40;
+        const dreh = (Math.random() - 0.5) * 1440, dauer = 1800 + Math.random() * 1600;
+        k.animate([
+          { transform: `translate(${x0}px, ${y0}px) rotate(0deg)`, opacity: 1 },
+          { transform: `translate(${x0 + dx * 0.6}px, ${y0 + dy * 0.5}px) rotate(${dreh / 2}deg)`, opacity: 1, offset: 0.5 },
+          { transform: `translate(${x0 + dx}px, ${y0 + dy}px) rotate(${dreh}deg)`, opacity: 0.2 }
+        ], { duration: dauer, delay: Math.random() * 400, easing: "cubic-bezier(.25,.6,.5,1)", fill: "forwards" }).onfinish = () => k.remove();
+      }
+    };
+    poster.addEventListener("mouseenter", regen);
+    poster.addEventListener("click", regen);   // Handy: antippen
+  })();
+</script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
