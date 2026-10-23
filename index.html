@@ -72,6 +72,14 @@
   .addForm input[type=number] { width:90px; }
   .addForm input[type=time] { width:120px; }
   #penaltyGrid button { border-radius: 8px; }
+  .kopf { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+  .sticker { display: flex; align-items: center; padding: 0.5rem 0.8rem 0.5rem 0; }
+  .sticker img { border: 6px solid white; border-radius: 6px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); object-fit: cover; transition: transform 0.2s; }
+  .sticker .st1 { height: 150px; width: 125px; transform: rotate(-6deg); position: relative; z-index: 2; }
+  .sticker .st2 { height: 120px; width: 160px; transform: rotate(5deg); margin-left: -18px; }
+  .sticker img:hover { transform: rotate(0) scale(1.08); z-index: 3; }
+  @media (min-width: 760px) { .kopf { flex-wrap: nowrap; } .kopf h1 { font-size: clamp(2rem, 4.6vw, 3.4rem); } }
+  @media (max-width: 600px) { .sticker .st1 { height: 110px; width: 92px; } .sticker .st2 { height: 88px; width: 118px; } }
   .made-by { text-align: center; margin: 2.5rem 0 1rem; }
   .made-by a { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.45rem 1rem 0.45rem 0.5rem; background: white; border-radius: 999px;
     box-shadow: 0 1px 4px rgba(0,29,59,0.15); text-decoration: none; transition: box-shadow 0.2s, transform 0.2s; }
@@ -85,8 +93,16 @@
 </style>
 </head>
 <body>
-<h1>Saisonkarten Verwaltung</h1>
-<p class="saison" id="saisonHinweis"></p>
+<header class="kopf">
+  <div class="kopf-text">
+    <h1>Saisonkarten Verwaltung</h1>
+    <p class="saison" id="saisonHinweis"></p>
+  </div>
+  <div class="sticker">
+    <img src="graffiti-fcsg.jpg" alt="Graffiti Fussballclub St. Gallen 1879" class="st1"/>
+    <img src="graffiti-sanktgallen.jpg" alt="Graffiti Sankt Gallen" class="st2"/>
+  </div>
+</header>
 
 <!-- Modus Auswahl -->
 <div id="modeSelectView">
