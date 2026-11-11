@@ -392,34 +392,37 @@
     const brennt = Math.min(stufe, 4);
     if (stufe === 5) document.getElementById("adventBanner").textContent = "Frohe Weihnachten";
     const K = "#10261a";
-    const kerzen = [[52, 100], [98, 110], [146, 110], [192, 100]];   // Reihenfolge = Anzuend-Reihenfolge
-    let kranz = `<svg viewBox="0 0 244 150">
+    const kerzen = [[84, 126, 0], [62, 90, 1], [182, 90, 2], [160, 126, 3]];   // [x, Fuss-y, Anzuend-Reihenfolge]: vorne links, hinten links, hinten rechts, vorne rechts
+    const cx = 122, cy = 108, rx = 98, ry = 26;
+    let kranz = `<svg viewBox="0 0 244 160">
       <defs><radialGradient id="kglow"><stop offset="0" stop-color="#ffe27a" stop-opacity="0.9"/><stop offset="1" stop-color="#ffb000" stop-opacity="0"/></radialGradient></defs>
-      <ellipse cx="122" cy="112" rx="104" ry="28" fill="none" stroke="${K}" stroke-width="34"/>
-      <ellipse cx="122" cy="112" rx="104" ry="28" fill="none" stroke="#0f5a2e" stroke-width="27"/>
-      <ellipse cx="122" cy="112" rx="104" ry="28" fill="none" stroke="#2e9e55" stroke-width="12" stroke-dasharray="3 9" stroke-linecap="round"/>
-      <ellipse cx="122" cy="106" rx="104" ry="24" fill="none" stroke="#fff" stroke-width="5" stroke-dasharray="8 22" opacity="0.85"/>`;
-    kerzen.forEach(([x, y], i) => {
-      const an = i < brennt, h = 54;
+      <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="${K}" stroke-width="32"/>
+      <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="#0f5a2e" stroke-width="25"/>
+      <ellipse cx="${cx}" cy="${cy - 5}" rx="${rx}" ry="${ry - 2}" fill="none" stroke="#23914c" stroke-width="7" stroke-linecap="round"/>`;
+    // Beeren zwischen den Kerzen
+    [[122, 83], [40, 104], [204, 104]].forEach(([x, y]) => {
+      kranz += `<circle cx="${x - 5}" cy="${y}" r="4.5" fill="#e8262b" stroke="${K}" stroke-width="2"/><circle cx="${x + 4}" cy="${y - 2}" r="4.5" fill="#e8262b" stroke="${K}" stroke-width="2"/><circle cx="${x}" cy="${y + 4}" r="4.5" fill="#e8262b" stroke="${K}" stroke-width="2"/>`;
+    });
+    // Kerzen von hinten nach vorne zeichnen
+    [...kerzen].sort((a, b) => a[1] - b[1]).forEach(([x, y, i]) => {
+      const an = i < brennt, h = 50, w = 18, top = y - h;
       kranz += `<g>
-        <rect x="${x - 10}" y="${y - h}" width="20" height="${h}" rx="3" fill="#fff" stroke="${K}" stroke-width="3"/>
-        <rect x="${x - 10}" y="${y - h + 30}" width="20" height="8" fill="#00873e"/>
-        <path d="M${x - 4},${y - h + 6} v12" stroke="#e3ece6" stroke-width="3" stroke-linecap="round"/>
-        <path d="M${x},${y - h} v-7" stroke="${K}" stroke-width="2.5" stroke-linecap="round"/>
-        ${an ? `<circle class="kglow" cx="${x}" cy="${y - h - 14}" r="24" fill="url(#kglow)"/>
+        <rect x="${x - w / 2}" y="${top}" width="${w}" height="${h}" rx="2.5" fill="#fff" stroke="${K}" stroke-width="3"/>
+        <rect x="${x - w / 2 + 1.5}" y="${top + 26}" width="${w - 3}" height="7" fill="#00873e"/>
+        <path d="M${x - 4},${top + 5} v14" stroke="#e1ebe4" stroke-width="3" stroke-linecap="round"/>
+        <path d="M${x},${top} v-6" stroke="${K}" stroke-width="2.5" stroke-linecap="round"/>
+        ${an ? `<circle class="kglow" cx="${x}" cy="${top - 14}" r="22" fill="url(#kglow)"/>
         <g class="flamme" style="animation-delay:-${(i * 0.23).toFixed(2)}s">
-          <path d="M${x},${y - h - 30} C${x + 9},${y - h - 18} ${x + 8},${y - h - 6} ${x},${y - h - 5} C${x - 8},${y - h - 6} ${x - 9},${y - h - 18} ${x},${y - h - 30} Z" fill="#ffd23f" stroke="${K}" stroke-width="2.5"/>
-          <path d="M${x},${y - h - 20} C${x + 4},${y - h - 14} ${x + 3},${y - h - 9} ${x},${y - h - 8} C${x - 3},${y - h - 9} ${x - 4},${y - h - 14} ${x},${y - h - 20} Z" fill="#ff7a1a"/>
+          <path d="M${x},${top - 30} C${x + 9},${top - 18} ${x + 8},${top - 5} ${x},${top - 4} C${x - 8},${top - 5} ${x - 9},${top - 18} ${x},${top - 30} Z" fill="#ffd23f" stroke="${K}" stroke-width="2.5"/>
+          <path d="M${x},${top - 19} C${x + 4},${top - 13} ${x + 3},${top - 8} ${x},${top - 7} C${x - 3},${top - 8} ${x - 4},${top - 13} ${x},${top - 19} Z" fill="#ff7a1a"/>
         </g>` : ""}
+        <path d="M${x - 24},${y + 1} q12,-11 24,-2 q12,-9 24,2 q-12,9 -24,3 q-12,6 -24,-3 Z" fill="#14753b" stroke="${K}" stroke-width="2.5" stroke-linejoin="round"/>
       </g>`;
     });
-    // Zweige und Beeren vor den Kerzenfuessen
-    [[40, 116], [74, 124], [120, 128], [168, 124], [204, 114], [122, 92], [80, 96], [166, 96]].forEach(([x, y], i) => {
-      kranz += `<path d="M${x - 14},${y} q14,-12 28,0 q-14,10 -28,0 Z" fill="#14753b" stroke="${K}" stroke-width="2.5"/>`;
-      if (i % 2 === 0) kranz += `<circle cx="${x + 9}" cy="${y + 3}" r="5" fill="#e8262b" stroke="${K}" stroke-width="2"/><circle cx="${x + 2}" cy="${y + 6}" r="4" fill="#e8262b" stroke="${K}" stroke-width="2"/>`;
-    });
-    kranz += `<g transform="translate(122,134)"><path d="M-12,0 L-34,14 L-26,0 L-34,-10 Z M12,0 L34,14 L26,0 L34,-10 Z" fill="#00873e" stroke="${K}" stroke-width="2.5"/>
-      <circle r="9" fill="#fff" stroke="${K}" stroke-width="2.5"/><circle r="4" fill="#00873e"/></g></svg>
+    // Schleife vorne
+    kranz += `<g transform="translate(${cx},${cy + ry + 2})"><path d="M-6,0 L-26,-10 L-26,10 Z M6,0 L26,-10 L26,10 Z" fill="#00873e" stroke="${K}" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M-4,4 L-12,20 M4,4 L12,20" stroke="${K}" stroke-width="7" stroke-linecap="round"/><path d="M-4,4 L-12,20 M4,4 L12,20" stroke="#00873e" stroke-width="3.5" stroke-linecap="round"/>
+      <circle r="7" fill="#fff" stroke="${K}" stroke-width="2.5"/></g></svg>
       <span class="kranz-text">${stufe === 5 ? "Frohe Weihnachten" : stufe + ". Advent"}</span>`;
     document.getElementById("adventskranz").innerHTML = kranz;
 
