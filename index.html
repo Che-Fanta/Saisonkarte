@@ -75,10 +75,84 @@
   .kopf { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: nowrap; margin-bottom: 0.8rem; }
   .kopf { align-items: center; padding: 0.4rem 0.2rem 0.6rem; }
   .kopf-text { flex: 1; }
-  .poster { height: 340px; width: auto; border: 5px solid white; border-radius: 8px; transform: rotate(4deg); margin: 0.4rem 0.8rem 0.4rem 0;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5); transition: transform 0.2s; }
-  .poster:hover { transform: rotate(0) scale(1.05); }
+  .poster-wrap { position: relative; flex: none; transform: rotate(4deg); margin: 0.4rem 0.8rem 0.4rem 0; transition: transform 0.2s; line-height: 0; }
+  .poster-wrap:hover { transform: rotate(0) scale(1.05); }
+  .poster { height: 340px; width: auto; border: 5px solid white; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
   @media (max-width: 600px) { .poster { height: 190px; } }
+  .muetze { display: none; position: absolute; pointer-events: none; }
+
+  /* ================= WINTER / WEIHNACHTEN (aktiv 1.11.–6.1., Test: ?winter=1 / ?winter=0) ================= */
+  .winter .muetze { display: block; width: 36%; left: 36%; top: 23.5%; transform: rotate(-8deg); filter: drop-shadow(0 3px 3px rgba(0,0,0,0.35)); }
+  #schneeCanvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; display: none; }
+  .winter #schneeCanvas { display: block; }
+  body.winter { background:
+      radial-gradient(ellipse at 15% 10%, rgba(61,220,111,0.30), transparent 45%),
+      radial-gradient(ellipse at 85% 30%, rgba(0,135,62,0.40), transparent 50%),
+      radial-gradient(ellipse at 50% 0%, rgba(190,225,255,0.18), transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(61,220,111,0.22), transparent 55%),
+      repeating-linear-gradient(-35deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 14px),
+      #05200e; background-attachment: fixed; }
+  .lichterkette { display: none; position: relative; height: 30px; margin: -0.6rem 0 0.9rem; }
+  .winter .lichterkette { display: flex; justify-content: space-between; }
+  .lichterkette::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 22px; border-bottom: 2px solid #0b2a16;
+    border-radius: 0 0 50% 50% / 0 0 100% 100%; }
+  .lichterkette span { position: relative; width: 11px; height: 17px; border-radius: 50% 50% 46% 46%; border: 2px solid rgba(0,0,0,0.45);
+    animation: birne 1.6s ease-in-out infinite alternate; }
+  .lichterkette span::before { content: ""; position: absolute; top: -6px; left: 1px; width: 5px; height: 6px; background: #2c3a30; border-radius: 2px; }
+  @keyframes birne { from { opacity: 1; filter: brightness(1.15); } to { opacity: 0.45; filter: brightness(0.7); box-shadow: none; } }
+  .winter h1::after { content: " ❄"; font-size: 0.55em; vertical-align: super; color: #dff3ff; text-shadow: 0 0 12px rgba(255,255,255,0.8); }
+  .winter summary { padding-top: 0.75rem;
+    background: radial-gradient(circle at 10px -2px, #fff 8px, transparent 9px) 0 0 / 22px 11px repeat-x, linear-gradient(90deg, var(--gruen), #00a84f); }
+  .winter summary:hover { background: radial-gradient(circle at 10px -2px, #fff 8px, transparent 9px) 0 0 / 22px 11px repeat-x, linear-gradient(90deg, #00a84f, var(--gruen-hell)); }
+  .winter .section-box::before, .winter #userOverview::before { content: ""; position: absolute; left: 14px; width: 55%; top: -14px; height: 14px;
+    background: radial-gradient(circle at 50% 100%, #fff 8px, transparent 9px) 0 0 / 18px 14px repeat-x; filter: drop-shadow(0 -1px 1px rgba(0,0,0,0.15)); }
+  .schneehuegel { display: none; margin: 2rem -1rem -2rem; line-height: 0; }
+  .winter .schneehuegel { display: block; }
+  .schneehuegel svg { width: 100%; height: 90px; }
+  .winter .made-by { margin-top: 0; }
+
+  /* Weihnachts-Intro nach dem Login (Comic-Stil) */
+  #xmasIntro { position: fixed; inset: 0; z-index: 10000; display: none; cursor: pointer; background: #071a33; overflow: hidden; }
+  #xmasIntro.aktiv { display: block; animation: introEin 0.4s ease-out; }
+  #xmasIntro.weg { animation: introAus 0.6s ease-in forwards; }
+  @keyframes introEin { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes introAus { to { opacity: 0; } }
+  #xmasIntro > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #xmasIntro .intro-text { position: absolute; left: 0; right: 0; top: 7%; text-align: center; pointer-events: none; padding: 0 1rem; }
+  #xmasIntro .intro-titel { font-family: "Permanent Marker", cursive; font-size: clamp(2.1rem, 8vw, 5rem); color: #fff; line-height: 1.05; transform: rotate(-3deg) scale(0);
+    text-shadow: 3px 3px 0 #00873e, 6px 6px 0 #0b3d1f, 0 0 26px rgba(255,255,255,0.5); -webkit-text-stroke: 1.5px #0b3d1f;
+    animation: plopp 0.7s cubic-bezier(.2,1.6,.4,1) 1.1s forwards; }
+  #xmasIntro .intro-sub { display: inline-block; margin-top: 0.8rem; font-family: "Bebas Neue", sans-serif; font-size: clamp(1.3rem, 4vw, 2.2rem); letter-spacing: 0.08em;
+    color: #0b3d1f; background: #fff; border: 3px solid #0b3d1f; border-radius: 10px; padding: 0.1rem 0.9rem; box-shadow: 4px 4px 0 #00873e;
+    transform: rotate(2deg) scale(0); animation: plopp2 0.6s cubic-bezier(.2,1.6,.4,1) 1.7s forwards; }
+  @keyframes plopp { to { transform: rotate(-3deg) scale(1); } }
+  @keyframes plopp2 { to { transform: rotate(2deg) scale(1); } }
+  #xmasIntro .intro-skip { position: absolute; right: 1rem; bottom: 1rem; font-size: 0.8rem; color: rgba(255,255,255,0.75); background: rgba(0,0,0,0.35);
+    border-radius: 999px; padding: 0.3rem 0.8rem; font-weight: 600; }
+  #xmasIntro .gespann { animation: flug 5.6s cubic-bezier(.35,.05,.65,.95) 0.2s both; }
+  @keyframes flug {
+    0%   { transform: translate(-760px, 600px) rotate(-5deg); }
+    30%  { transform: translate(120px, 430px) rotate(-9deg); }
+    55%  { transform: translate(620px, 400px) rotate(-1deg); }
+    78%  { transform: translate(1060px, 300px) rotate(-10deg); }
+    100% { transform: translate(1900px, 40px) rotate(-16deg); } }
+  #xmasIntro .bob { animation: bob 0.55s ease-in-out infinite alternate; }
+  #xmasIntro .bob2 { animation: bob 0.55s ease-in-out 0.18s infinite alternate; }
+  #xmasIntro .bob3 { animation: bob 0.55s ease-in-out 0.36s infinite alternate; }
+  @keyframes bob { from { transform: translateY(-7px); } to { transform: translateY(7px); } }
+  #xmasIntro .vorne { transform-box: fill-box; transform-origin: 0 0; animation: galoppV 0.55s ease-in-out infinite alternate; }
+  #xmasIntro .hinten { transform-box: fill-box; transform-origin: 100% 0; animation: galoppH 0.55s ease-in-out infinite alternate; }
+  @keyframes galoppV { from { transform: rotate(-22deg); } to { transform: rotate(16deg); } }
+  @keyframes galoppH { from { transform: rotate(18deg); } to { transform: rotate(-20deg); } }
+  #xmasIntro .funkel { animation: funkel 0.9s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+  @keyframes funkel { from { opacity: 0.15; transform: scale(0.5); } to { opacity: 1; transform: scale(1.15); } }
+  #xmasIntro .stern { animation: funkel 1.8s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+  #xmasIntro .nasenglow { animation: glow 0.5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+  @keyframes glow { from { opacity: 0.25; transform: scale(0.8); } to { opacity: 0.7; transform: scale(1.4); } }
+  #xmasIntro .flocke { animation: fallen linear infinite; }
+  @keyframes fallen { from { transform: translate(0, -60px); } to { transform: translate(-80px, 1000px); } }
+  #xmasIntro .blase { transform-box: fill-box; transform-origin: 0% 100%; transform: scale(0); animation: blase 0.4s cubic-bezier(.2,1.6,.4,1) 1.9s forwards; }
+  @keyframes blase { to { transform: scale(1); } }
   .konfetti { position: fixed; top: 0; left: 0; width: 9px; height: 14px; pointer-events: none; z-index: 9999; border-radius: 2px; will-change: transform, opacity; }
   .made-by { text-align: center; margin: 2.5rem 0 1rem; }
   .made-by a { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.45rem 1rem 0.45rem 0.5rem; background: white; border-radius: 999px;
@@ -93,13 +167,46 @@
 </style>
 </head>
 <body>
+<script>
+  // Winter-Look automatisch vom 1. November bis 6. Januar (Test: ?winter=1 oder ?winter=0)
+  (() => {
+    const q = new URLSearchParams(location.search).get("winter");
+    const d = new Date(), m = d.getMonth() + 1, t = d.getDate();
+    const saison = m === 11 || m === 12 || (m === 1 && t <= 6);
+    if (q === "1" || (q !== "0" && saison)) document.body.classList.add("winter");
+  })();
+</script>
+<canvas id="schneeCanvas" aria-hidden="true"></canvas>
 <header class="kopf">
   <div class="kopf-text">
     <h1>Saisonkarten Verwaltung</h1>
     <p class="saison" id="saisonHinweis"></p>
   </div>
-  <img src="fcsg-pokal.jpg?v=4" alt="" class="poster" id="poster"/>
+  <div class="poster-wrap" id="poster">
+    <img src="fcsg-pokal.jpg?v=4" alt="" class="poster"/>
+    <svg class="muetze" viewBox="0 0 130 100" aria-hidden="true">
+      <!-- Samichlaus-Mütze im Comic-Stil -->
+      <path d="M118,62 C122,40 110,18 84,12 C58,6 30,22 20,72 L98,74 C96,62 98,52 104,46 C108,52 112,58 118,62 Z" fill="#d7192d" stroke="#1a1a1a" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M40,30 C52,18 70,14 84,16" fill="none" stroke="#ff6b6b" stroke-width="5" stroke-linecap="round" opacity="0.8"/>
+      <path d="M96,66 C94,54 98,46 106,42" fill="none" stroke="#8e0f1d" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+      <rect x="8" y="64" width="102" height="24" rx="12" fill="#fff" stroke="#1a1a1a" stroke-width="4"/>
+      <circle cx="26" cy="76" r="3" fill="#dfe7ee"/><circle cx="50" cy="73" r="3.5" fill="#dfe7ee"/><circle cx="76" cy="78" r="3" fill="#dfe7ee"/><circle cx="96" cy="74" r="2.5" fill="#dfe7ee"/>
+      <circle cx="117" cy="66" r="12" fill="#fff" stroke="#1a1a1a" stroke-width="4"/>
+      <circle cx="113" cy="62" r="3.5" fill="#dfe7ee"/>
+    </svg>
+  </div>
 </header>
+<div class="lichterkette" id="lichterkette" aria-hidden="true"></div>
+
+<!-- Weihnachts-Intro nach dem Login -->
+<div id="xmasIntro" aria-hidden="true">
+  <svg id="xmasSvg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"></svg>
+  <div class="intro-text">
+    <div class="intro-titel" id="introTitel">Schöni Wiehnachte!</div>
+    <div class="intro-sub">Hopp FCSG &nbsp;💚🤍</div>
+  </div>
+  <div class="intro-skip">Antippen zum Überspringen</div>
+</div>
 
 <!-- Modus Auswahl -->
 <div id="modeSelectView">
@@ -203,6 +310,19 @@
   <button id="btnBackToStartAdmin" class="secondary">Zurück zur Startseite</button>
 </div>
 
+<div class="schneehuegel" aria-hidden="true">
+  <svg viewBox="0 0 1100 90" preserveAspectRatio="none">
+    <g fill="#0f5a2e" stroke="#06240f" stroke-width="2">
+      <path d="M90,62 L112,20 L134,62 Z"/><path d="M96,44 L112,6 L128,44 Z"/>
+      <path d="M150,66 L166,36 L182,66 Z"/>
+      <path d="M880,60 L906,12 L932,60 Z"/><path d="M887,40 L906,0 L925,40 Z"/>
+      <path d="M950,64 L968,32 L986,64 Z"/>
+    </g>
+    <g fill="#fff"><path d="M106,22 L112,10 L118,22 Z"/><path d="M900,12 L906,2 L912,12 Z"/><path d="M162,40 L166,34 L170,40 Z"/></g>
+    <path d="M0,70 C120,48 260,58 380,66 C520,76 640,50 780,56 C900,62 1000,52 1100,60 L1100,90 L0,90 Z" fill="#fff" stroke="#cfe3f2" stroke-width="3"/>
+  </svg>
+</div>
+
 <footer class="made-by">
   <a href="https://webschmiede.ch" target="_blank" rel="noopener" title="Webschmiede – Websites für Vereine und KMU">
     <img src="webschmiede-icon.svg" alt="" /><span class="txt"><small>made by</small><strong><span>WEB</span>SCHMIEDE</strong></span>
@@ -238,6 +358,251 @@
     };
     poster.addEventListener("mouseenter", regen);
     poster.addEventListener("click", regen);   // Handy: antippen
+  })();
+
+  // ===================== WINTER / WEIHNACHTEN =====================
+  (() => {
+    const winter = document.body.classList.contains("winter");
+    const ruhig = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.weihnachtsIntro = () => {};
+    if (!winter) return;
+
+    // Lichterkette unter dem Titel
+    const kette = document.getElementById("lichterkette");
+    const farbenL = ["#3ddc6f", "#ffffff", "#ffd23f", "#ff4d5e", "#00a84f", "#9be7ff"];
+    const anzahl = Math.max(10, Math.min(30, Math.round(innerWidth / 38)));
+    for (let i = 0; i < anzahl; i++) {
+      const b = document.createElement("span");
+      const f = farbenL[i % farbenL.length];
+      b.style.background = f;
+      b.style.boxShadow = `0 0 10px 2px ${f}`;
+      b.style.animationDelay = `${(i % 3) * 0.55}s`;
+      b.style.transform = `translateY(${Math.round(Math.sin((i / (anzahl - 1)) * Math.PI) * 8)}px) rotate(${i % 2 ? 8 : -8}deg)`;
+      kette.appendChild(b);
+    }
+
+    // Schneefall im Hintergrund
+    const cv = document.getElementById("schneeCanvas");
+    const ctx = cv.getContext("2d");
+    let flocken = [];
+    const groesse = () => {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const n = Math.round(Math.min(110, innerWidth / 11));
+      flocken = Array.from({ length: n }, () => ({
+        x: Math.random() * innerWidth, y: Math.random() * innerHeight,
+        r: 1 + Math.random() * 2.8, v: 0.35 + Math.random() * 0.9, p: Math.random() * 6.28
+      }));
+    };
+    groesse(); addEventListener("resize", groesse);
+    const malen = () => {
+      ctx.clearRect(0, 0, innerWidth, innerHeight);
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      for (const f of flocken) {
+        if (!ruhig) {
+          f.y += f.v; f.p += 0.012; f.x += Math.sin(f.p) * 0.4;
+          if (f.y > innerHeight + 5) { f.y = -5; f.x = Math.random() * innerWidth; }
+        }
+        ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.283); ctx.fill();
+      }
+      if (!ruhig) requestAnimationFrame(malen);
+    };
+    malen();
+
+    // ---------- Intro: grün-weisser Samichlaus mit Rentieren (Comic) ----------
+    const L = "#10261a";  // Comic-Kontur
+    const linie = (d, farbe, breite) =>
+      `<path d="${d}" fill="none" stroke="${L}" stroke-width="${breite + 5}" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<path d="${d}" fill="none" stroke="${farbe}" stroke-width="${breite}" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+    const rentier = (nase, cls) => `
+      <g class="${cls}">
+        <g class="hinten">${linie("M26,56 L10,70 L-6,72", "#9a5a2b", 7)}${linie("M36,60 L22,76 L6,82", "#8a4f25", 7)}</g>
+        <g class="vorne">${linie("M70,60 L90,68 L104,80", "#9a5a2b", 7)}${linie("M60,62 L76,76 L86,90", "#8a4f25", 7)}</g>
+        <ellipse cx="12" cy="40" rx="9" ry="6" fill="#fff" stroke="${L}" stroke-width="3"/>
+        <ellipse cx="48" cy="46" rx="40" ry="21" fill="#b06a33" stroke="${L}" stroke-width="3.5"/>
+        <path d="M22,56 Q48,72 76,56 Q48,62 22,56 Z" fill="#f4e3c6"/>
+        <path d="M30,30 Q40,26 50,30" fill="none" stroke="#d58c50" stroke-width="5" stroke-linecap="round"/>
+        ${linie("M58,27 Q64,46 58,66", "#0e9a47", 6)}
+        <path d="M66,38 C74,24 82,12 90,4 L106,12 C98,22 92,38 86,52 Z" fill="#b06a33" stroke="${L}" stroke-width="3.5" stroke-linejoin="round"/>
+        ${linie("M74,24 Q88,32 100,22", "#0e9a47", 6)}
+        <circle cx="80" cy="30" r="5" fill="#ffd23f" stroke="${L}" stroke-width="2.5"/>
+        <circle cx="90" cy="32" r="5" fill="#ffd23f" stroke="${L}" stroke-width="2.5"/>
+        ${linie("M98,-6 C96,-18 90,-26 80,-30 M92,-18 L82,-16", "#7a4a22", 4)}
+        ${linie("M104,-6 C108,-20 114,-26 124,-30 M110,-18 L120,-14", "#7a4a22", 4)}
+        <ellipse cx="90" cy="-2" rx="9" ry="4.5" fill="#b06a33" stroke="${L}" stroke-width="3" transform="rotate(-30 90 -2)"/>
+        <ellipse cx="104" cy="6" rx="15" ry="12" fill="#b06a33" stroke="${L}" stroke-width="3.5"/>
+        <ellipse cx="117" cy="12" rx="10" ry="7.5" fill="#d99a62" stroke="${L}" stroke-width="3"/>
+        <circle cx="105" cy="1" r="3.6" fill="${L}"/><circle cx="106.3" cy="-0.3" r="1.2" fill="#fff"/>
+        <path d="M110,17 Q115,22 121,17" fill="none" stroke="${L}" stroke-width="2.2" stroke-linecap="round"/>
+        ${nase === "rot" ? `<circle class="nasenglow" cx="127" cy="10" r="11" fill="#ff3b3b" opacity="0.4"/>` : ""}
+        <circle cx="127" cy="10" r="6" fill="${nase === "rot" ? "#ff2a2a" : "#2b1a10"}" stroke="${L}" stroke-width="2.5"/>
+        <circle cx="125.5" cy="8" r="1.6" fill="#fff" opacity="0.8"/>
+      </g>`;
+
+    const fcsgBadge = (x, y, s) => `
+      <g transform="translate(${x},${y}) scale(${s})">
+        <circle r="22" fill="#fff" stroke="${L}" stroke-width="3"/>
+        <circle r="18" fill="#00873e"/>
+        <circle r="14.5" fill="none" stroke="#fff" stroke-width="1.6"/>
+        <text y="4.5" text-anchor="middle" font-family="Bebas Neue, Barlow, sans-serif" font-size="14" fill="#fff" letter-spacing="0.5">FCSG</text>
+        <text y="12" text-anchor="middle" font-family="Barlow, sans-serif" font-weight="700" font-size="4.6" fill="#fff">1879</text>
+      </g>`;
+
+    const schlitten = `
+      <g class="bob">
+        <!-- Geschenk-Sack -->
+        <rect x="4" y="-34" width="22" height="20" fill="#ff4d5e" stroke="${L}" stroke-width="3"/><path d="M15,-34 V-14 M4,-24 H26" stroke="#ffd23f" stroke-width="3.5"/>
+        <rect x="22" y="-46" width="20" height="30" fill="#ffd23f" stroke="${L}" stroke-width="3"/><path d="M32,-46 V-16" stroke="#0e9a47" stroke-width="3.5"/>
+        <rect x="-8" y="-20" width="18" height="16" fill="#fff" stroke="${L}" stroke-width="3"/><path d="M1,-20 V-4" stroke="#00873e" stroke-width="3.5"/>
+        <ellipse cx="18" cy="4" rx="26" ry="22" fill="#c9a27a" stroke="${L}" stroke-width="3.5"/>
+        <path d="M6,-6 Q16,0 30,-8" fill="none" stroke="${L}" stroke-width="2.5"/>
+        <!-- Samichlaus in Grün-Weiss -->
+        <path d="M34,36 C28,0 44,-14 64,-14 C86,-14 100,2 94,36 Z" fill="#0e9a47" stroke="${L}" stroke-width="3.5"/>
+        ${linie("M64,-10 L64,32", "#fff", 8)}
+        <circle cx="64" cy="4" r="2.4" fill="${L}"/><circle cx="64" cy="18" r="2.4" fill="${L}"/>
+        <!-- Kopf -->
+        <circle cx="64" cy="-32" r="17" fill="#f7c9a2" stroke="${L}" stroke-width="3.5"/>
+        <path d="M46,-32 C44,-10 54,6 64,8 C74,6 84,-10 82,-32 C76,-22 70,-24 64,-24 C58,-24 52,-22 46,-32 Z" fill="#fff" stroke="${L}" stroke-width="3"/>
+        <path d="M60,-21 Q64,-13 68,-21 Z" fill="#8b1e2c" stroke="${L}" stroke-width="2"/>
+        <path d="M51,-25 Q57,-32 64,-26 Q71,-32 77,-25 Q71,-21 64,-24 Q57,-21 51,-25 Z" fill="#fff" stroke="${L}" stroke-width="2.2"/>
+        <circle cx="64" cy="-30" r="4.2" fill="#f2a07f" stroke="${L}" stroke-width="2"/>
+        <circle cx="53" cy="-31" r="3.6" fill="#f58f8f" opacity="0.8"/><circle cx="75" cy="-31" r="3.6" fill="#f58f8f" opacity="0.8"/>
+        <path d="M55,-38 Q58,-42 61,-38 M67,-38 Q70,-42 73,-38" fill="none" stroke="${L}" stroke-width="2.6" stroke-linecap="round"/>
+        <!-- grüne Zipfelmütze, Zipfel weht nach hinten -->
+        <path d="M52,-58 C40,-68 26,-66 16,-54 L24,-48 C32,-56 42,-58 50,-50 Z" fill="#0e9a47" stroke="${L}" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M46,-44 C46,-62 60,-72 74,-68 C84,-64 86,-54 84,-44 Z" fill="#0e9a47" stroke="${L}" stroke-width="3.5" stroke-linejoin="round"/>
+        <circle cx="17" cy="-52" r="8" fill="#fff" stroke="${L}" stroke-width="3"/>
+        <rect x="42" y="-50" width="46" height="13" rx="6.5" fill="#fff" stroke="${L}" stroke-width="3"/>
+        <!-- Arm mit Zügeln -->
+        ${linie("M86,-2 Q100,6 112,8", "#0e9a47", 12)}
+        <circle cx="111" cy="8" r="7" fill="#fff" stroke="${L}" stroke-width="3"/>
+        <circle cx="119" cy="10" r="7" fill="#0b3d1f" stroke="${L}" stroke-width="3"/>
+        <!-- Schlitten -->
+        ${linie("M8,30 C-8,22 -8,-4 10,-2 C22,0 22,14 12,14", "#ffd23f", 5)}
+        <path d="M6,26 L132,26 C154,26 166,40 164,60 C162,80 148,86 128,86 L30,86 C14,86 6,74 6,54 Z" fill="#0e9a47" stroke="${L}" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M10,44 L162,44" stroke="#fff" stroke-width="8"/>
+        <path d="M14,34 L60,34" stroke="#3ddc6f" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+        ${linie("M150,30 C170,22 180,2 168,-4 C158,-8 154,6 162,8", "#ffd23f", 5)}
+        ${fcsgBadge(96, 62, 1)}
+        ${linie("M34,86 L34,104 M124,86 L124,104", "#ffd23f", 4)}
+        ${linie("M-14,104 L150,104 C178,104 188,86 174,74", "#ffd23f", 5)}
+        <!-- Sprechblase -->
+        <g class="blase">
+          <path d="M70,-118 h120 a14,14 0 0 1 14,14 v30 a14,14 0 0 1 -14,14 h-80 l-26,20 l6,-20 h-20 a14,14 0 0 1 -14,-14 v-30 a14,14 0 0 1 14,-14 Z" fill="#fff" stroke="${L}" stroke-width="3.5"/>
+          <text x="130" y="-81" text-anchor="middle" font-family="Permanent Marker, cursive" font-size="22" fill="#0b3d1f">Ho! Ho! Ho!</text>
+        </g>
+      </g>`;
+
+    // Feenstaub-Spur hinter dem Schlitten
+    let spur = "";
+    for (let i = 0; i < 14; i++) {
+      const x = -30 - i * 34 - Math.random() * 14, y = 70 + i * 9 + (Math.random() - 0.5) * 40, r = 3 + Math.random() * 5;
+      spur += `<g transform="translate(${x.toFixed(0)},${y.toFixed(0)}) scale(${(r / 8).toFixed(2)})"><use href="#stern" class="funkel" style="animation-delay:${(Math.random()).toFixed(2)}s" fill="${i % 3 ? "#ffd23f" : "#ffffff"}"/></g>`;
+    }
+    // Speed-Lines
+    let speed = "";
+    for (let i = 0; i < 5; i++) speed += `<path d="M${-60 - i * 20},${-10 + i * 22} h${-120 - i * 18}" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.5"/>`;
+
+    // Szene: Nachthimmel, Mond, Hügel, Dorf mit Kathedrale, Tannen
+    const tanne = (x, y, s) => `
+      <g transform="translate(${x},${y}) scale(${s})">
+        <rect x="-6" y="-4" width="12" height="16" fill="#5a3a1e" stroke="${L}" stroke-width="3"/>
+        <path d="M-42,0 L0,-50 L42,0 Z M-34,-34 L0,-80 L34,-34 Z M-24,-64 L0,-104 L24,-64 Z" fill="#0f5a2e" stroke="${L}" stroke-width="3.5" stroke-linejoin="round"/>
+        <path d="M-22,-26 L0,-50 L22,-26 Q12,-30 0,-24 Q-12,-30 -22,-26 Z M-16,-60 L0,-80 L16,-60 Q8,-63 0,-58 Q-8,-63 -16,-60 Z M-10,-90 L0,-104 L10,-90 Q4,-92 0,-88 Q-4,-92 -10,-90 Z" fill="#fff"/>
+      </g>`;
+    const haus = (x, y, w, h, wand) => `
+      <g transform="translate(${x},${y})">
+        <rect x="0" y="${-h}" width="${w}" height="${h}" fill="${wand}" stroke="${L}" stroke-width="3"/>
+        <path d="M-8,${-h + 2} L${w / 2},${-h - w * 0.55} L${w + 8},${-h + 2} Z" fill="#fff" stroke="${L}" stroke-width="3" stroke-linejoin="round"/>
+        <rect x="${w * 0.18}" y="${-h * 0.72}" width="${w * 0.24}" height="${w * 0.22}" fill="#ffd96b" stroke="${L}" stroke-width="2.5"/>
+        <rect x="${w * 0.58}" y="${-h * 0.72}" width="${w * 0.24}" height="${w * 0.22}" fill="#ffd96b" stroke="${L}" stroke-width="2.5"/>
+      </g>`;
+    const turm = (x) => `
+      <g transform="translate(${x},0)">
+        <rect x="-14" y="-170" width="28" height="170" fill="#e9dcc3" stroke="${L}" stroke-width="3"/>
+        <rect x="-6" y="-140" width="12" height="20" rx="6" fill="#ffd96b" stroke="${L}" stroke-width="2.5"/>
+        <circle cx="0" cy="-90" r="8" fill="#fff" stroke="${L}" stroke-width="2.5"/>
+        <path d="M-18,-170 C-18,-196 18,-196 18,-170 Z" fill="#4e9a7a" stroke="${L}" stroke-width="3"/>
+        <path d="M-9,-188 C-9,-204 9,-204 9,-188 Z" fill="#4e9a7a" stroke="${L}" stroke-width="3"/>
+        <path d="M-12,-176 C-8,-188 8,-188 12,-176 Q0,-180 -12,-176 Z" fill="#fff"/>
+        <path d="M0,-202 V-222 M-6,-214 H6" stroke="${L}" stroke-width="3"/>
+      </g>`;
+
+    let sterne = "";
+    for (let i = 0; i < 46; i++) {
+      const x = -200 + Math.random() * 2000, y = -680 + Math.random() * 1180, s = 0.3 + Math.random() * 0.9;
+      sterne += `<g transform="translate(${x.toFixed(0)},${y.toFixed(0)}) scale(${s.toFixed(2)})"><use href="#stern" class="stern" fill="#fff6c8" style="animation-delay:${(Math.random() * 2).toFixed(2)}s"/></g>`;
+    }
+    let schnee = "";
+    for (let i = 0; i < 90; i++) {
+      const x = -100 + Math.random() * 1900, r = 2 + Math.random() * 4.5, d = 4 + Math.random() * 5;
+      schnee += `<circle class="flocke" cx="${x.toFixed(0)}" cy="${(-700 + Math.random() * 700).toFixed(0)}" r="${r.toFixed(1)}" fill="#fff" opacity="${(0.6 + Math.random() * 0.4).toFixed(2)}" style="animation-duration:${d.toFixed(1)}s; animation-delay:-${(Math.random() * d).toFixed(1)}s"/>`;
+    }
+
+    const szene = `
+      <defs>
+        <linearGradient id="himmel" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#050f24"/><stop offset="0.45" stop-color="#0b2a4e"/><stop offset="0.8" stop-color="#1d5d78"/><stop offset="1" stop-color="#3f8f8a"/>
+        </linearGradient>
+        <pattern id="raster" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r="1.7" fill="#fff" opacity="0.07"/></pattern>
+        <path id="stern" d="M0,-10 L2.6,-2.6 L10,0 L2.6,2.6 L0,10 L-2.6,2.6 L-10,0 L-2.6,-2.6 Z"/>
+      </defs>
+      <rect x="-300" y="-800" width="2200" height="1800" fill="url(#himmel)"/>
+      <rect x="-300" y="-800" width="2200" height="1800" fill="url(#raster)"/>
+      ${sterne}
+      <circle cx="1290" cy="160" r="170" fill="#fff6d6" opacity="0.12"/>
+      <circle cx="1290" cy="160" r="88" fill="#fff6d6" stroke="${L}" stroke-width="5"/>
+      <circle cx="1262" cy="140" r="16" fill="#efe3b6"/><circle cx="1312" cy="190" r="11" fill="#efe3b6"/><circle cx="1320" cy="130" r="7" fill="#efe3b6"/>
+      <path d="M-300,620 C-50,560 200,540 420,590 C640,640 820,520 1060,530 C1280,540 1460,600 1900,560 L1900,1000 L-300,1000 Z" fill="#cfe3f2" stroke="${L}" stroke-width="4"/>
+      <g transform="translate(0,640)">
+        ${haus(560, 0, 70, 50, "#f2c38b")}${haus(860, -6, 60, 46, "#e7a8a0")}
+        <rect x="660" y="-80" width="170" height="80" fill="#e9dcc3" stroke="${L}" stroke-width="3"/>
+        <path d="M652,-78 L745,-128 L838,-78 Z" fill="#fff" stroke="${L}" stroke-width="3" stroke-linejoin="round"/>
+        <rect x="725" y="-44" width="40" height="44" rx="20" fill="#ffd96b" stroke="${L}" stroke-width="2.5"/>
+        ${turm(690)}${turm(800)}
+      </g>
+      ${tanne(130, 640, 0.9)}${tanne(250, 610, 0.6)}${tanne(1080, 600, 0.75)}${tanne(1480, 620, 0.85)}
+      <path d="M-300,740 C0,670 300,690 560,710 C820,730 1060,660 1300,680 C1500,696 1700,700 1900,690 L1900,1000 L-300,1000 Z" fill="#e8f3fb" stroke="${L}" stroke-width="4"/>
+      ${haus(1180, 712, 80, 56, "#f2c38b")}${haus(300, 735, 66, 48, "#cfe8d4")}
+      ${tanne(40, 790, 1.2)}${tanne(1380, 760, 1.1)}${tanne(1560, 790, 1.35)}
+      <g class="gespann">
+        ${speed}${spur}
+        ${linie("M118,10 C200,40 250,40 322,22", "#c99a2e", 2.5)}
+        ${linie("M118,10 C220,20 330,-10 462,0", "#c99a2e", 2.5)}
+        ${linie("M164,44 L240,38", "#c99a2e", 3)}
+        <g transform="translate(230,-12)"><g class="bob2">${rentier("braun", "r2")}</g></g>
+        <g transform="translate(372,-34)"><g class="bob3">${rentier("rot", "r1")}</g></g>
+        ${schlitten}
+      </g>
+      <path d="M-300,840 C100,790 500,820 800,826 C1100,832 1400,800 1900,816 L1900,1000 L-300,1000 Z" fill="#fff" stroke="${L}" stroke-width="4"/>
+      ${schnee}`;
+
+    const intro = document.getElementById("xmasIntro");
+    const svg = document.getElementById("xmasSvg");
+    let timer = null;
+    const schliessen = () => {
+      if (!intro.classList.contains("aktiv")) return;
+      clearTimeout(timer);
+      intro.classList.add("weg");
+      setTimeout(() => { intro.classList.remove("aktiv", "weg"); svg.innerHTML = ""; }, 600);
+    };
+    intro.addEventListener("click", schliessen);
+    addEventListener("keydown", e => { if (e.key === "Escape") schliessen(); });
+
+    window.weihnachtsIntro = (name) => {
+      if (ruhig) return;
+      const hoch = innerHeight > innerWidth;
+      // Hochformat (Handy): Ausschnitt um die Bildmitte, mehr Himmel oben
+      svg.setAttribute("viewBox", hoch ? "420 -520 760 1420" : "0 0 1600 900");
+      svg.innerHTML = szene;   // neu einsetzen = Animation startet von vorne
+      document.getElementById("introTitel").textContent = name ? `Schöni Wiehnachte, ${name}!` : "Schöni Wiehnachte!";
+      intro.querySelectorAll(".intro-titel, .intro-sub").forEach(el => { el.style.animation = "none"; void el.offsetWidth; el.style.animation = ""; });
+      intro.classList.remove("weg");
+      intro.classList.add("aktiv");
+      timer = setTimeout(schliessen, 6600);
+    };
   })();
 </script>
 <script type="module">
@@ -420,6 +785,7 @@
     currentUserDisplay.textContent = currentUser;
     loginView.style.display = "none";
     mainView.style.display = "block";
+    window.weihnachtsIntro(currentUser);
     ladeSpiele();
   });
   document.getElementById("btnLogout").addEventListener("click", () => {
