@@ -79,10 +79,15 @@
   .poster-wrap:hover { transform: rotate(0) scale(1.05); }
   .poster { height: 340px; width: auto; border: 5px solid white; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
   @media (max-width: 600px) { .poster { height: 190px; } }
-  .muetze { display: none; position: absolute; pointer-events: none; }
+  .advent-banner { display: none; position: absolute; left: -14px; right: -14px; bottom: 9%; pointer-events: none; text-align: center; line-height: 1.1;
+    font-family: "Permanent Marker", cursive; font-size: clamp(1rem, 3.4vw, 1.7rem); color: #fff; padding: 0.35rem 0.4rem 0.45rem;
+    background: #d7192d; border: 3px solid #1a1a1a; border-radius: 6px; transform: rotate(-7deg); box-shadow: 4px 4px 0 #0b3d1f;
+    text-shadow: 2px 2px 0 #1a1a1a; }
+  @media (max-width: 600px) { .advent-banner { left: -4px; right: -4px; font-size: 0.85rem; border-width: 2px; box-shadow: 2px 2px 0 #0b3d1f; } }
+  .advent-banner::before { content: "❄ "; } .advent-banner::after { content: " ❄"; }
 
   /* ================= WINTER / WEIHNACHTEN (aktiv 1.11.–6.1., Test: ?winter=1 / ?winter=0) ================= */
-  .winter .muetze { display: block; width: 36%; left: 36%; top: 23.5%; transform: rotate(-8deg); filter: drop-shadow(0 3px 3px rgba(0,0,0,0.35)); }
+  .winter .advent-banner { display: block; }
   #schneeCanvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; display: none; }
   .winter #schneeCanvas { display: block; }
   body.winter { background:
@@ -184,16 +189,7 @@
   </div>
   <div class="poster-wrap" id="poster">
     <img src="fcsg-pokal.jpg?v=4" alt="" class="poster"/>
-    <svg class="muetze" viewBox="0 0 130 100" aria-hidden="true">
-      <!-- Samichlaus-Mütze im Comic-Stil -->
-      <path d="M118,62 C122,40 110,18 84,12 C58,6 30,22 20,72 L98,74 C96,62 98,52 104,46 C108,52 112,58 118,62 Z" fill="#d7192d" stroke="#1a1a1a" stroke-width="4" stroke-linejoin="round"/>
-      <path d="M40,30 C52,18 70,14 84,16" fill="none" stroke="#ff6b6b" stroke-width="5" stroke-linecap="round" opacity="0.8"/>
-      <path d="M96,66 C94,54 98,46 106,42" fill="none" stroke="#8e0f1d" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
-      <rect x="8" y="64" width="102" height="24" rx="12" fill="#fff" stroke="#1a1a1a" stroke-width="4"/>
-      <circle cx="26" cy="76" r="3" fill="#dfe7ee"/><circle cx="50" cy="73" r="3.5" fill="#dfe7ee"/><circle cx="76" cy="78" r="3" fill="#dfe7ee"/><circle cx="96" cy="74" r="2.5" fill="#dfe7ee"/>
-      <circle cx="117" cy="66" r="12" fill="#fff" stroke="#1a1a1a" stroke-width="4"/>
-      <circle cx="113" cy="62" r="3.5" fill="#dfe7ee"/>
-    </svg>
+    <div class="advent-banner">Schöne Adventszeit</div>
   </div>
 </header>
 <div class="lichterkette" id="lichterkette" aria-hidden="true"></div>
