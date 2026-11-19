@@ -71,7 +71,46 @@
   .addForm .field span { font-size:0.8rem; color:#4c6153; }
   .addForm input[type=number] { width:90px; }
   .addForm input[type=time] { width:120px; }
-  #penaltyGrid button { border-radius: 8px; }
+  .heist-leiter { display: flex; flex-wrap: wrap; gap: 4px; margin: 0.6rem 0; }
+  .heist-leiter span { font-family: "Bebas Neue", sans-serif; font-size: 1rem; letter-spacing: 0.04em; padding: 0.15rem 0.5rem; border-radius: 4px;
+    background: #e8efe9; color: #6b7d71; border: 2px solid transparent; }
+  .heist-leiter span.geschafft { background: #d6f5df; color: var(--gruen); }
+  .heist-leiter span.jetzt { background: #111; color: #ffd400; border-color: #ffd400; }
+  .heist-tresor { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; background: #1b1f1c; border: 4px solid #555; border-radius: 12px;
+    padding: 1rem; box-shadow: inset 0 0 0 3px #2c322e, 0 6px 14px rgba(0,0,0,0.3); }
+  .heist-bild { font-size: 3.4rem; line-height: 1; width: 4rem; text-align: center; }
+  .heist-bild { user-select: none; }
+  .heist-bild.tippbar { cursor: pointer; }
+  .heist-plan { margin: 0.6rem 0 0.8rem; }
+  .plan-zeile { margin-bottom: 0.6rem; }
+  .plan-zeile > strong { display: block; font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: 1.1rem; letter-spacing: 0.06em; color: var(--gruen-dunkel); }
+  .plan-zeile button { background: #f1f5f2; color: #10261a; border: 2px solid #cfdcd3; border-radius: 10px; text-transform: none; letter-spacing: 0; font-weight: 600;
+    padding: 0.3rem 0.7rem; }
+  .plan-zeile button .em { font-size: 1.3rem; vertical-align: middle; margin-right: 0.2rem; }
+  .plan-zeile button.gewaehlt { background: #111; color: #ffd400; border-color: #ffd400; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  .plan-info { font-size: 0.85rem; color: #4c6153; min-height: 1.1rem; margin-top: 0.15rem; }
+  .heist-crew { font-weight: 600; margin: 0.2rem 0 0.4rem; color: #10261a; }
+  .heist-tresor { position: relative; overflow: hidden; }
+  .heist-fahrt { position: absolute; left: 0; top: 50%; font-size: 3rem; line-height: 1; pointer-events: none; }
+  .heist-event { display: block; margin-top: 0.3rem; color: #6b4f00; font-weight: 600; }
+  .heist-schloss { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; padding: 0.5rem 0.7rem; background: #111; color: #ffd400;
+    border-radius: 8px; font-family: "Bebas Neue", sans-serif; letter-spacing: 0.06em; font-size: 1.1rem; }
+  .heist-schloss input { width: 5.5rem; text-align: center; font-family: "Bebas Neue", sans-serif; font-size: 1.4rem; letter-spacing: 0.3em; background: #222;
+    color: #6fe36a; border-color: #444; }
+  .heist-schloss input.falsch { animation: wackeln 0.15s 3; border-color: #d7192d; }
+  .heist-schloss .muted { color: #bbb; font-family: "Barlow", sans-serif; letter-spacing: 0; font-size: 0.85rem; }
+  .heist-bild.wackeln { animation: wackeln 0.4s ease-in-out 3; }
+  @keyframes wackeln { 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
+  .heist-kabel { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .heist-kabel button { width: 5.2rem; padding: 0.6rem 0; border-radius: 8px; font-size: 0.9rem; color: #fff; text-shadow: 1px 1px 0 #000; border-width: 3px; }
+  .heist-kabel button:disabled { opacity: 0.35; color: #fff; }
+  .heist-kabel .k-rot { background: #d7192d; border-color: #8f0f1d; }
+  .heist-kabel .k-blau { background: #1f5fd6; border-color: #123a85; }
+  .heist-kabel .k-gelb { background: #e8b400; border-color: #8a6a00; }
+  .heist-kabel button:hover:not(:disabled) { filter: brightness(1.2); color: #fff; }
+  .heist-kabel button.alarm { opacity: 1; box-shadow: 0 0 0 4px #fff, 0 0 18px #ff2a2a; }
+  .heist-msg { min-height: 1.5rem; margin: 0.7rem 0 0.4rem; font-weight: 600; }
+  #heistAbhauen { background: #111; border-color: #111; color: #ffd400; }
   .kopf { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: nowrap; margin-bottom: 0.8rem; }
   .kopf { align-items: center; padding: 0.4rem 0.2rem 0.6rem; }
   .kopf-text { flex: 1; }
@@ -453,19 +492,32 @@
   </div>
 
   <div class="section-box">
-    <h2>⚽ Penalty-Challenge</h2>
-    <p class="muted">20 Penaltys. Wähle eine Ecke – ob der Ball reingeht, ist <strong>reine Glückssache</strong>! Der Goalie hechtet zufällig irgendwohin. 20/20 schafft fast niemand …</p>
-    <div id="penaltyScore" style="font-weight:bold; margin-bottom:0.5rem;"></div>
+    <h2>💰 Der Coup – Tresor im Kybunpark</h2>
+    <p class="muted">Plane deinen Coup: Maske, Einstieg, Fluchtfahrzeug. Dann pro Runde <strong>ein Kabel</strong> durchschneiden – zwei sind sicher, eins löst den Alarm aus. Nach jeder Runde kannst du mit der Beute <strong>abhauen</strong> oder weiterzocken. Reine Glückssache – und auch die Flucht klappt nicht immer …</p>
+    <div id="heistPlan" class="heist-plan"></div>
+    <button id="heistStart">🎬 Coup starten</button>
+    <div id="heistSpiel" style="display:none;">
+    <div id="heistCrew" class="heist-crew"></div>
+    <div id="heistLeiter" class="heist-leiter"></div>
+    <div class="heist-tresor" id="heistTresor">
+      <div id="heistBild" class="heist-bild">🗺️</div>
+      <div id="heistKabel" class="heist-kabel"></div>
+    </div>
+    <div id="heistSchloss" class="heist-schloss" style="display:none;">
+      <span>🔢 Zahlenschloss:</span>
+      <input id="heistCode" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="····"/>
+      <button id="heistCodeOk" type="button">Öffnen</button>
+      <span id="heistCodeHinweis" class="muted"></span>
+    </div>
+    <p id="heistMsg" class="heist-msg"></p>
+    <button id="heistAbhauen" style="display:none;">🚗 Abhauen mit der Beute</button>
+    <button id="heistNeu" class="secondary" style="display:none;">Neuer Coup</button>
+    </div>
 
-    <p class="muted" style="margin:0.2rem 0;">Ecke wählen = schiessen:</p>
-    <div id="penaltyGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; max-width:340px;"></div>
-
-    <div id="penaltyField" style="font-size:2rem; height:2.4rem; margin:0.6rem 0;">🥅&nbsp;&nbsp;🧤&nbsp;&nbsp;⚽</div>
-    <p id="penaltyMsg" style="min-height:1.4rem; margin:0.4rem 0;"></p>
-    <button id="penaltyReset" class="secondary" style="display:none;">Nochmal spielen</button>
-
-    <h3 style="color:#0b3d1f; margin:1rem 0 0.3rem;">🏆 Leaderboard</h3>
-    <div id="penaltyLeaderboard"><p class="muted">Wird geladen...</p></div>
+    <h3 style="color:#0b3d1f; margin:1rem 0 0.3rem;">🏆 Die grössten Coups</h3>
+    <div id="heistLeaderboard"><p class="muted">Wird geladen...</p></div>
+    <button id="btnPenaltyRuhm" class="secondary" style="margin-top:0.8rem;">⚽ Penalty-Hall-of-Fame anzeigen</button>
+    <div id="penaltyLeaderboard" style="display:none; margin-top:0.5rem;"></div>
   </div>
 
   <button id="btnBackToStart2" class="secondary">Zurück zur Startseite</button>
@@ -844,7 +896,7 @@
   // ===================== GTA-MODUS =====================
   (() => {
     const leer = () => {};
-    window.gtaIntro = leer; window.gtaAktion = leer; window.gtaStats = leer; window.gtaTor = leer; window.gtaPenaltyEnde = leer;
+    window.gtaIntro = leer; window.gtaAktion = leer; window.gtaStats = leer; window.gtaHeist = leer;
     if (!document.body.classList.contains("gta")) return;
     const ruhig = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const $ = id => document.getElementById(id);
@@ -946,19 +998,24 @@
       else if (aktion === "stornieren") { mission("Storniert", "Der Deal ist geplatzt", true); grau(); ton(jingle.wasted, "triangle", 0.28); }
       else if (aktion === "zuruecknehmen") { mission("Mission abgebrochen", "Respekt −250 🐔", true); ton(jingle.abbruch); }
     };
-    window.gtaTor = () => { bonus += 10; zaehle(); };
-    window.gtaPenaltyEnde = (tore) => {
-      if (tore === 20) { mission("Legende!", "20/20 – die ganze Stadt redet von dir"); ton(jingle.cheat); geldregen(["🏆", "⚽", "💚"]); }
-      else if (tore >= 16) { mission("Mission erfüllt!", `Penalty-König · ${tore}/20`); ton(jingle.erfuellt); }
-      else if (tore <= 6) { mission("Wasted", `Nur ${tore}/20 – ab ins Training`, true); grau(); ton(jingle.wasted, "triangle", 0.28); }
-      else { mission("Mission erledigt", `${tore}/20 Tore`); ton(jingle.erfuellt); }
+    window.gtaHeist = (ergebnis, beute) => {
+      if (ergebnis === "kabel") ton([1318, 1760], "square", 0.06);
+      else if (ergebnis === "geknackt") { mission("Tresor geknackt!", "100 Mio. – jetzt nur noch weg hier"); ton(jingle.cheat); geldregen(["💰", "💵", "💎", "🤑"]); }
+      else if (ergebnis === "busted") { mission("Busted", "Die Beute ist weg", true); grau(); sirene(); }
+      else if (ergebnis === "entkommen") {
+        bonus += Math.round(beute / 100); zaehle();
+        if (beute >= 100000000) { mission("Coup des Jahrhunderts!", "100 Mio. – Saison City steht kopf"); ton(jingle.cheat); geldregen(["💰", "💵", "💎", "🤑", "🏆"]); }
+        else if (beute >= 100000) { mission("Legendärer Coup!", "Tresor komplett leergeräumt"); ton(jingle.cheat); geldregen(["💰", "💵", "💎"]); }
+        else { mission("Mission erfüllt!", "Beute: CHF " + beute.toLocaleString("de-CH")); ton(jingle.erfuellt); if (beute >= 25000) geldregen(["💵", "💰"]); }
+      }
     };
 
     // --- Ladebildschirm nach Login ---
     const tipps = [
       "<b>Tipp:</b> Freigegebene Karten bringen Respekt. Gebuchte erst recht.",
       "<b>Tipp:</b> Wer zu viele Karten bucht, hat bald die Polizei am Hals.",
-      "<b>Tipp:</b> Der Goalie hechtet zufällig. Wie im echten Leben.",
+      "<b>Tipp:</b> Beim Coup gilt: Wer zu gierig wird, landet in Handschellen.",
+      "<b>Gerücht:</b> Wer durch die Kanalisation kommt, soll am Tresor etwas Seltsames entdecken …",
       "<b>Tipp:</b> Bezahlt wird unter euch. Saison City nimmt kein Bargeld.",
       "<b>Tipp:</b> Eine Karte zurücknehmen ist erlaubt. Respekt kostet es trotzdem.",
       "<b>Tipp:</b> Klick mal 5× auf die Sterne oben rechts."
@@ -1711,125 +1768,321 @@
   });
 
   // ====================================================================
-  // MINI-GAME: Penalty-Challenge (20 Schüsse, Ziel + Power-Timing)
-  // Leaderboard wird pro Saison in Firestore (data.leaderboard) gespeichert.
+  // MINI-GAME: Der Coup (Tresorraub, reine Glückssache, Push-your-luck)
+  // 1) Planung: Maske (nur Show), Einstieg (Kanalisation = geheimes Zahlenschloss), Fluchtfahrzeug (Risiko/Beute)
+  // 2) Pro Runde 3 Kabel, 1 davon löst Alarm aus. Zufällige Ereignisse zwischen den Runden.
+  // 3) Abhauen jederzeit; Fluchtrisiko steigt mit der Runde, Fahrzeug verändert Risiko + Beute.
+  // Leaderboard pro Saison in Firestore (data.heistLeaderboard), pro Person nur der beste Coup.
+  // Die alte Penalty-Bestenliste (data.leaderboard) bleibt erhalten und ist per Knopf sichtbar.
   // ====================================================================
-  (function penaltyGame() {
-    const ANZAHL = 20;
-    const cols = ["Links", "Mitte", "Rechts"];
-    const rows = ["Hoch", "Halbhoch", "Flach"];
+  (function heistGame() {
+    const STUFEN = [1000, 2500, 5000, 10000, 25000, 50000, 100000];
+    const GEHEIM = 100000000;
+    const KABEL = [["k-rot", "Rot"], ["k-blau", "Blau"], ["k-gelb", "Gelb"]];
+    const PLAN = {
+      maske: { titel: "Maske", wahl: {
+        clown: ["🤡", "Clown", "Klassiker. Niemand nimmt dich ernst."],
+        baer: ["🐻", "Bär", "Das St. Galler Wappentier. Respekt."],
+        fuchs: ["🦊", "Fuchs", "Schlau. Sagt man zumindest."],
+        schwein: ["🐷", "Schwein", "Riecht nach Ärger."],
+        alien: ["👽", "Alien", "Die Polizei glaubt dir eh nicht."] } },
+      einstieg: { titel: "Einstieg", wahl: {
+        tuer: ["🚪", "Haupteingang", "Frech durch die Tür. Funktioniert erstaunlich oft."],
+        dach: ["🪂", "Übers Dach", "Fallschirm aufs Stadiondach. Stilnote 10."],
+        kanal: ["🕳️", "Kanalisation", "Stinkt. Aber man sieht Dinge, die andere nicht sehen …"] } },
+      flucht: { titel: "Fluchtfahrzeug", wahl: {
+        auto: ["🏎️", "Sportwagen", "Solide. Normales Risiko, volle Beute."],
+        heli: ["🚁", "Helikopter", "Viel sicherer – aber der Pilot will 10 % der Beute."],
+        vespa: ["🛵", "Vespa", "Stil-Bonus +5 % Beute, dafür etwas riskanter."],
+        traktor: ["🚜", "Traktor", "+25 % Beute (niemand verdächtigt einen Bauern), aber sehr langsam."],
+        bus: ["🚌", "Linienbus", "Fahrplan-Lotto: pünktlich = sicher, Verspätung = Ärger."] } }
+    };
+    const EVENTS = [
+      ["😴", "Der Wachmann schläft tief und fest."],
+      ["🐕", "Ein Wachhund bellt … und will dann nur gestreichelt werden."],
+      ["🥙", "Im Tresorraum liegt ein vergessener Kebab. Mitgenommen."],
+      ["📸", "Kurzes Selfie mit dem Tresor. Für die Insta-Story später."],
+      ["☕", "Kaffeepause. Die Polizei offenbar auch."],
+      ["🧦", "Du merkst, dass du zwei verschiedene Socken trägst. Egal."],
+      ["📻", "Im Funk läuft die Matchzusammenfassung. Kurz abgelenkt."],
+      ["💻", "Die Alarmanlage macht ein Windows-Update – <strong>das nächste Kabel ist garantiert sicher!</strong>", "update"]
+    ];
+    const chf = n => "CHF " + n.toLocaleString("de-CH");
+    const kurz = n => n >= 1000 ? (n / 1000).toLocaleString("de-CH") + "k" : String(n);
+    const ruhig = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const $ = id => document.getElementById(id);
 
-    let schuss = 0, tore = 0, running = true, gespeichert = false;
+    let wahl = { maske: "baer", einstieg: "tuer", flucht: "auto" };
+    try { Object.assign(wahl, JSON.parse(localStorage.getItem("heistWahl") || "{}")); } catch (e) {}
+    for (const k in wahl) if (!PLAN[k] || !PLAN[k].wahl[wahl[k]]) delete wahl[k];
+    wahl = Object.assign({ maske: "baer", einstieg: "tuer", flucht: "auto" }, wahl);
 
-    const scoreEl = document.getElementById("penaltyScore");
-    const fieldEl = document.getElementById("penaltyField");
-    const msgEl = document.getElementById("penaltyMsg");
-    const gridEl = document.getElementById("penaltyGrid");
-    const resetBtn = document.getElementById("penaltyReset");
-    const lbEl = document.getElementById("penaltyLeaderboard");
+    let runde = 0, beute = 0, laeuft = false, update = false, geknackt = false, fehlversuche = 0;
 
-    // Ziel-Raster (3x3): Klick = sofort schiessen (reine Glückssache)
-    gridEl.innerHTML = "";
-    for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 3; c++) {
+    const planEl = $("heistPlan"), startBtn = $("heistStart"), spielEl = $("heistSpiel"), crewEl = $("heistCrew");
+    const leiterEl = $("heistLeiter"), tresorEl = $("heistTresor"), bildEl = $("heistBild"), kabelEl = $("heistKabel"), msgEl = $("heistMsg");
+    const abhauenBtn = $("heistAbhauen"), neuBtn = $("heistNeu"), lbEl = $("heistLeaderboard");
+    const schlossEl = $("heistSchloss"), codeEl = $("heistCode"), hinweisEl = $("heistCodeHinweis");
+    const penaltyEl = $("penaltyLeaderboard"), penaltyBtn = $("btnPenaltyRuhm");
+
+    // ---------- Planung ----------
+    function zeigePlan() {
+      planEl.innerHTML = "";
+      for (const art in PLAN) {
+        const zeile = document.createElement("div");
+        zeile.className = "plan-zeile";
+        zeile.innerHTML = `<strong>${PLAN[art].titel}</strong>`;
+        for (const key in PLAN[art].wahl) {
+          const [em, name] = PLAN[art].wahl[key];
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = wahl[art] === key ? "gewaehlt" : "";
+          b.innerHTML = `<span class="em">${em}</span>${name}`;
+          b.addEventListener("click", () => {
+            wahl[art] = key;
+            try { localStorage.setItem("heistWahl", JSON.stringify(wahl)); } catch (e) {}
+            zeigePlan();
+          });
+          zeile.appendChild(b);
+        }
+        const info = document.createElement("div");
+        info.className = "plan-info";
+        info.textContent = PLAN[art].wahl[wahl[art]][2];
+        zeile.appendChild(info);
+        planEl.appendChild(zeile);
+      }
+    }
+    const w = art => PLAN[art].wahl[wahl[art]];
+
+    // ---------- Anzeige ----------
+    function zeigeLeiter() {
+      leiterEl.innerHTML = STUFEN.map((s, i) =>
+        `<span class="${i < runde ? "geschafft" : i === runde && laeuft ? "jetzt" : ""}">${kurz(s)}</span>`).join("");
+    }
+    function bild(zeichen, wackeln) {
+      bildEl.textContent = zeichen;
+      bildEl.classList.remove("wackeln");
+      if (wackeln) { void bildEl.offsetWidth; bildEl.classList.add("wackeln"); }
+    }
+    function zeigeKabel() {
+      const mix = [...KABEL].sort(() => Math.random() - 0.5);
+      kabelEl.innerHTML = "";
+      mix.forEach(([klasse, name], i) => {
         const b = document.createElement("button");
-        b.textContent = "🎯";
-        b.title = `${rows[r]} ${cols[c]}`;
-        b.dataset.r = r; b.dataset.c = c;
-        b.style.padding = "0.6rem 0";
-        b.addEventListener("click", () => schiessen(r, c));
-        gridEl.appendChild(b);
-      }
+        b.className = klasse; b.textContent = "✂️ " + name;
+        b.addEventListener("click", () => schneiden(i));
+        kabelEl.appendChild(b);
+      });
     }
+    function sperreKabel() { kabelEl.querySelectorAll("button").forEach(b => b.disabled = true); }
+    const schlossMoeglich = () => laeuft && runde === 0 && !geknackt && wahl.einstieg === "kanal";
 
-    function updateScore() {
-      if (schuss < ANZAHL) scoreEl.textContent = `Schuss ${schuss + 1} von ${ANZAHL} · Tore: ${tore}`;
-      else scoreEl.textContent = `Fertig! ${tore} von ${ANZAHL} Toren`;
-    }
-
-    function schiessen(r, c) {
-      if (!running || schuss >= ANZAHL) return;
-      schuss++;
-      fieldEl.innerHTML = c === 0 ? "⚽&nbsp;&nbsp;🧤&nbsp;&nbsp;🥅" : c === 2 ? "🥅&nbsp;&nbsp;🧤&nbsp;&nbsp;⚽" : "🥅&nbsp;⚽🧤&nbsp;🥅";
-
-      // Reine Glückssache: zufälliger Goalie + zufälliger Würfel
-      const kCol = Math.floor(Math.random() * 3);
-      const kRow = Math.floor(Math.random() * 3);
-      const roll = Math.random();
-
-      let ergebnis;
-      if (roll < 0.10) {
-        ergebnis = "daneben";                 // Pech: Ball daneben
-      } else if (c === kCol && Math.random() < 0.78) {
-        ergebnis = "gehalten";                // Goalie in richtiger Ecke -> meist gehalten
-      } else {
-        ergebnis = "tor";                     // sonst Tor
-        tore++;
-        window.gtaTor();
-      }
-
-      if (ergebnis === "tor") msgEl.innerHTML = `⚽ <span class="tag-frei">TOOOR!</span> <span class="muted">(Goalie nach ${cols[kCol]})</span>`;
-      else if (ergebnis === "gehalten") msgEl.innerHTML = `🧤 <span class="tag-gebucht">Gehalten!</span> <span class="muted">(Goalie nach ${cols[kCol]} – Pech!)</span>`;
-      else msgEl.innerHTML = `🙈 <span class="tag-gebucht">Daneben!</span> <span class="muted">(Pech gehabt)</span>`;
-
-      updateScore();
-      if (schuss >= ANZAHL) ende();
-    }
-
-    async function ende() {
-      running = false;
-      gridEl.querySelectorAll("button").forEach(b => b.disabled = true);
-      let fazit = tore === 20 ? " 🏆 LEGENDE – unfassbares Glück!" : tore >= 16 ? " 🔥 Glückspilz!" : tore >= 12 ? " 👏 Stark!" : tore >= 7 ? " 🙂 Solide." : " 😅 Pechvogel!";
-      msgEl.innerHTML += `<br><strong>Endstand: ${tore}/${ANZAHL}.${fazit}</strong>`;
-      resetBtn.style.display = "inline-block";
-      window.gtaPenaltyEnde(tore);
-      if (!gespeichert) {
-        gespeichert = true;
-        const name = currentUser || "Gast";
-        msgEl.innerHTML += `<br><span class="muted">Speichere Ergebnis für ${name} im Leaderboard...</span>`;
-        try { await speichereScore(name, tore); } catch (e) { /* ignore */ }
-        renderLeaderboard();
-      }
-    }
-
-    resetBtn.addEventListener("click", () => {
-      schuss = 0; tore = 0; running = true; gespeichert = false;
-      fieldEl.innerHTML = "🥅&nbsp;&nbsp;🧤&nbsp;&nbsp;⚽";
-      msgEl.textContent = "";
-      gridEl.querySelectorAll("button").forEach(b => b.disabled = false);
-      resetBtn.style.display = "none";
-      updateScore();
+    // ---------- Ablauf ----------
+    startBtn.addEventListener("click", () => {
+      runde = 0; beute = 0; laeuft = true; update = false; geknackt = false;
+      planEl.style.display = "none"; startBtn.style.display = "none"; spielEl.style.display = "block";
+      neuBtn.style.display = "none"; abhauenBtn.style.display = "none";
+      schlossEl.style.display = "none"; hinweisEl.textContent = ""; codeEl.value = "";
+      crewEl.textContent = `${w("maske")[0]} ${w("maske")[1]}-Bande · Einstieg ${w("einstieg")[0]} · Flucht ${w("flucht")[0]} ${w("flucht")[1]}`;
+      const intro = {
+        tuer: "🚪 Du spazierst durch den Haupteingang. Niemand fragt nach.",
+        dach: "🪂 Fallschirmlandung auf dem Stadiondach. Die Tauben sind beeindruckt.",
+        kanal: "🕳️ Durch die Kanalisation … riecht streng. Am Tresor hängt hier unten ein seltsames Kästchen."
+      }[wahl.einstieg];
+      msgEl.innerHTML = `${intro}<br>Schneide das erste Kabel!`;
+      bild("🏦");
+      bildEl.classList.toggle("tippbar", wahl.einstieg === "kanal");
+      bildEl.title = wahl.einstieg === "kanal" ? "Was ist das für ein Kästchen?" : "";
+      zeigeKabel(); zeigeLeiter();
     });
 
-    async function ladeLeaderboard() {
+    function busted(text) {
+      laeuft = false;
+      beute = 0;
+      bild("🚓", true);
+      msgEl.innerHTML = `<span class="tag-gebucht">🚨 BUSTED!</span> ${text}`;
+      abhauenBtn.style.display = "none";
+      neuBtn.style.display = "inline-block";
+      schlossEl.style.display = "none";
+      zeigeLeiter();
+      window.gtaHeist("busted", 0, text);
+    }
+
+    function schneiden(i) {
+      if (!laeuft) return;
+      sperreKabel();
+      schlossEl.style.display = "none";
+      const alarm = update ? -1 : Math.floor(Math.random() * 3);
+      update = false;
+      if (i === alarm) {
+        kabelEl.querySelectorAll("button")[i].classList.add("alarm");
+        busted(`Falsches Kabel – Alarm in Runde ${runde + 1}. Die Beute ist weg.`);
+        return;
+      }
+      runde++;
+      beute = STUFEN[runde - 1];
+      bild("💰", true);
+      window.gtaHeist("kabel", beute);
+      abhauenBtn.style.display = "inline-block";
+      let text;
+      if (runde >= STUFEN.length) {
+        text = `💎 <span class="tag-frei">Tresor leergeräumt!</span> ${chf(beute)} im Sack. Jetzt nur noch raus hier …`;
+        kabelEl.innerHTML = "";
+      } else {
+        text = `✂️ <span class="tag-frei">Puh, sicher!</span> Beute: <strong>${chf(beute)}</strong>. Nächstes Kabel = ${chf(STUFEN[runde])} – oder abhauen?`;
+        if (Math.random() < 0.3) {
+          const ev = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+          if (ev[2] === "update") update = true;
+          text += `<span class="heist-event">${ev[0]} ${ev[1]}</span>`;
+        }
+        setTimeout(() => { if (laeuft) zeigeKabel(); }, 500);
+      }
+      msgEl.innerHTML = text;
+      zeigeLeiter();
+    }
+
+    // Fahrzeug fährt (bzw. fliegt) durchs Bild
+    function fahrt(em, fliegt) {
+      return new Promise(fertig => {
+        if (ruhig) return fertig();
+        const f = document.createElement("span");
+        f.className = "heist-fahrt"; f.textContent = em;
+        tresorEl.appendChild(f);
+        const breite = tresorEl.clientWidth;
+        const bahn = fliegt
+          ? [{ transform: "translate(-60px, 10px) scaleX(-1)" }, { transform: `translate(${breite * 0.5}px, -20px) scaleX(-1)` }, { transform: `translate(${breite + 60}px, -120px) scaleX(-1)` }]
+          : [{ transform: "translate(-70px, -50%) scaleX(-1)" }, { transform: `translate(${breite + 70}px, -50%) scaleX(-1)` }];
+        f.animate(bahn, { duration: 1300, easing: "ease-in" }).onfinish = () => { f.remove(); fertig(); };
+      });
+    }
+
+    abhauenBtn.addEventListener("click", async () => {
+      if (!laeuft || beute <= 0) return;
+      laeuft = false;
+      sperreKabel(); kabelEl.innerHTML = "";
+      abhauenBtn.style.display = "none"; schlossEl.style.display = "none";
+      const fz = wahl.flucht;
+      let risiko = 0.05 + 0.02 * runde, faktor = 1, notiz = "";
+      if (fz === "heli") { risiko -= 0.04; faktor = 0.9; notiz = "Der Pilot kassiert 10 %."; }
+      if (fz === "vespa") { risiko += 0.04; faktor = 1.05; notiz = "Stil-Bonus +5 %."; }
+      if (fz === "traktor") { risiko += 0.10; faktor = 1.25; notiz = "Niemand verdächtigt einen Bauern: +25 %."; }
+      if (fz === "bus") {
+        if (Math.random() < 0.5) { risiko = 0; notiz = "Der Bus war auf die Sekunde pünktlich."; }
+        else { risiko += 0.20; notiz = "Der Bus hatte Verspätung …"; }
+      }
+      risiko = Math.max(0.01, risiko);
+      msgEl.innerHTML = `${w("flucht")[0]} Flucht läuft …`;
+      bild("💨");
+      await fahrt(w("flucht")[0], fz === "heli");
+      if (Math.random() < risiko) {
+        const sperre = { heli: "Polizeihelikopter am Himmel", traktor: "Der Traktor wurde von einem Velo überholt", bus: "Polizeikontrolle an der Haltestelle",
+          vespa: "Die Vespa hatte keinen Sprit mehr", auto: "Polizeisperre auf der Autobahn" }[fz];
+        busted(`${notiz ? notiz + " " : ""}${sperre} – ${chf(beute)} weg.`);
+        return;
+      }
+      const gewinn = Math.round(beute * faktor);
+      bild("🏁", true);
+      msgEl.innerHTML = `${w("flucht")[0]} <span class="tag-frei">Entkommen!</span> Die ${w("maske")[1]}-Bande ist mit <strong>${chf(gewinn)}</strong> davon.${notiz ? `<span class="heist-event">${notiz}</span>` : ""}`;
+      neuBtn.style.display = "inline-block";
+      zeigeLeiter();
+      window.gtaHeist("entkommen", gewinn);
+      try { await speichere(currentUser || "Gast", gewinn); } catch (e) { /* ignore */ }
+      zeigeBestenliste();
+    });
+
+    neuBtn.addEventListener("click", () => {
+      laeuft = false;
+      spielEl.style.display = "none";
+      planEl.style.display = "block"; startBtn.style.display = "inline-block";
+      zeigePlan();
+    });
+
+    // ---------- Geheimes Zahlenschloss (nur via Kanalisation; Code = Gründungsjahr des FCSG) ----------
+    bildEl.addEventListener("click", () => {
+      if (!schlossMoeglich()) return;
+      schlossEl.style.display = schlossEl.style.display === "none" ? "flex" : "none";
+      if (schlossEl.style.display === "flex") codeEl.focus();
+    });
+    const pruefeCode = () => {
+      if (!schlossMoeglich()) return;
+      if (codeEl.value.trim() === "1879") {
+        geknackt = true;
+        schlossEl.style.display = "none"; codeEl.value = "";
+        sperreKabel(); kabelEl.innerHTML = "";
+        runde = STUFEN.length; beute = GEHEIM;
+        bild("🔓", true);
+        msgEl.innerHTML = `🔓 <span class="tag-frei">TRESORCODE KORREKT!</span> <strong>${chf(beute)}</strong> im Sack. Jetzt nur noch entkommen …`;
+        abhauenBtn.style.display = "inline-block";
+        zeigeLeiter();
+        window.gtaHeist("geknackt", beute);
+        return;
+      }
+      fehlversuche++;
+      codeEl.classList.remove("falsch"); void codeEl.offsetWidth; codeEl.classList.add("falsch");
+      codeEl.value = "";
+      hinweisEl.textContent = fehlversuche >= 3 ? "🤫 Tipp: So alt wie der Verein." : fehlversuche >= 2 ? "🤫 Tipp: Eine Jahreszahl." : "Falsch.";
+    };
+    $("heistCodeOk").addEventListener("click", pruefeCode);
+    codeEl.addEventListener("keydown", e => { if (e.key === "Enter") pruefeCode(); });
+
+    // ---------- Bestenliste ----------
+    async function ladeDaten() {
       const snap = await getDoc(dataRef);
-      const d = snap.exists() ? snap.data() : {};
-      return Array.isArray(d.leaderboard) ? d.leaderboard : [];
+      return snap.exists() ? snap.data() : {};
     }
-    async function speichereScore(name, t) {
-      const lb = await ladeLeaderboard();
-      lb.push({ name, tore: t, datum: new Date().toISOString() });
-      lb.sort((a, b) => b.tore - a.tore || new Date(a.datum) - new Date(b.datum));
-      await setDoc(dataRef, { leaderboard: lb.slice(0, 25) }, { merge: true });
+    // pro Name nur der höchste Eintrag (bei Gleichstand der frühere), absteigend sortiert
+    function bestePro(liste) {
+      const best = {};
+      liste.forEach(e => {
+        const b = best[e.name];
+        if (!b || e.beute > b.beute || (e.beute === b.beute && new Date(e.datum) < new Date(b.datum))) best[e.name] = e;
+      });
+      return Object.values(best).sort((a, b) => b.beute - a.beute || new Date(a.datum) - new Date(b.datum));
     }
-    async function renderLeaderboard() {
+    async function speichere(name, betrag) {
+      const d = await ladeDaten();
+      const lb = Array.isArray(d.heistLeaderboard) ? d.heistLeaderboard : [];
+      const bisher = lb.find(e => e.name === name);
+      if (bisher && bisher.beute >= betrag) return;   // nur der beste Coup pro Person zählt
+      const neu = lb.filter(e => e.name !== name);
+      neu.push({ name, beute: betrag, crew: w("maske")[0] + w("flucht")[0], datum: new Date().toISOString() });
+      await setDoc(dataRef, { heistLeaderboard: bestePro(neu).slice(0, 25) }, { merge: true });
+    }
+    const medaille = i => i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1) + ".";
+    async function zeigeBestenliste() {
       try {
-        const lb = await ladeLeaderboard();
-        if (lb.length === 0) { lbEl.innerHTML = "<p class='muted'>Noch keine Einträge – sei der Erste!</p>"; return; }
-        const top = lb.slice(0, 10);
-        const rowsHtml = top.map((e, i) => {
-          const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1) + ".";
-          const dt = formatTs(e.datum).split(" ")[0];
-          return `<tr><td>${medal}</td><td style="text-align:left">${e.name}</td><td>${e.tore}/20</td><td class="muted">${dt}</td></tr>`;
-        }).join("");
-        lbEl.innerHTML = `<table><thead><tr><th>#</th><th>Name</th><th>Tore</th><th>Datum</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
+        const d = await ladeDaten();
+        const lb = bestePro(Array.isArray(d.heistLeaderboard) ? d.heistLeaderboard : []);
+        if (lb.length === 0) { lbEl.innerHTML = "<p class='muted'>Noch kein erfolgreicher Coup – sei der Erste!</p>"; return; }
+        const zeilen = lb.slice(0, 10).map((e, i) =>
+          `<tr><td>${medaille(i)}</td><td style="text-align:left">${e.name} ${e.crew || ""}</td><td>${chf(e.beute)}</td><td class="muted">${formatTs(e.datum).split(" ")[0]}</td></tr>`).join("");
+        lbEl.innerHTML = `<table><thead><tr><th>#</th><th>Name</th><th>Beute</th><th>Datum</th></tr></thead><tbody>${zeilen}</tbody></table>`;
       } catch (e) {
-        lbEl.innerHTML = "<p class='muted'>Leaderboard konnte nicht geladen werden.</p>";
+        lbEl.innerHTML = "<p class='muted'>Bestenliste konnte nicht geladen werden.</p>";
       }
     }
 
-    updateScore();
-    renderLeaderboard();
+    // Alte Penalty-Bestenliste (nur lesen)
+    penaltyBtn.addEventListener("click", async () => {
+      const offen = penaltyEl.style.display !== "none";
+      penaltyEl.style.display = offen ? "none" : "block";
+      penaltyBtn.textContent = offen ? "⚽ Penalty-Hall-of-Fame anzeigen" : "⚽ Penalty-Hall-of-Fame ausblenden";
+      if (offen) return;
+      penaltyEl.innerHTML = "<p class='muted'>Wird geladen...</p>";
+      try {
+        const d = await ladeDaten();
+        const lb = Array.isArray(d.leaderboard) ? d.leaderboard : [];
+        if (lb.length === 0) { penaltyEl.innerHTML = "<p class='muted'>Keine Einträge.</p>"; return; }
+        const zeilen = lb.slice(0, 10).map((e, i) =>
+          `<tr><td>${medaille(i)}</td><td style="text-align:left">${e.name}</td><td>${e.tore}/20</td><td class="muted">${formatTs(e.datum).split(" ")[0]}</td></tr>`).join("");
+        penaltyEl.innerHTML = `<table><thead><tr><th>#</th><th>Name</th><th>Tore</th><th>Datum</th></tr></thead><tbody>${zeilen}</tbody></table>`;
+      } catch (e) {
+        penaltyEl.innerHTML = "<p class='muted'>Konnte nicht geladen werden.</p>";
+      }
+    });
+
+    zeigePlan();
+    zeigeBestenliste();
   })();
 
   populateSelect(userSelect);
