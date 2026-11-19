@@ -107,6 +107,9 @@
   .heist-kabel .k-rot { background: #d7192d; border-color: #8f0f1d; }
   .heist-kabel .k-blau { background: #1f5fd6; border-color: #123a85; }
   .heist-kabel .k-gelb { background: #e8b400; border-color: #8a6a00; }
+  .heist-kabel .k-gruen { background: #00873e; border-color: #0b3d1f; }
+  .heist-leiter span.hoch { border-color: #d7192d; }
+  .heist-leiter span.hoch.jetzt { border-color: #ffd400; box-shadow: 0 0 0 2px #d7192d; }
   .heist-kabel button:hover:not(:disabled) { filter: brightness(1.2); color: #fff; }
   .heist-kabel button.alarm { opacity: 1; box-shadow: 0 0 0 4px #fff, 0 0 18px #ff2a2a; }
   .heist-msg { min-height: 1.5rem; margin: 0.7rem 0 0.4rem; font-weight: 600; }
@@ -1005,6 +1008,7 @@
       else if (ergebnis === "entkommen") {
         bonus += Math.round(beute / 100); zaehle();
         if (beute >= 100000000) { mission("Coup des Jahrhunderts!", "100 Mio. – Saison City steht kopf"); ton(jingle.cheat); geldregen(["💰", "💵", "💎", "🤑", "🏆"]); }
+        else if (beute >= 1000000) { mission("Millionär!", "CHF " + beute.toLocaleString("de-CH") + " – ganz ohne Cheat"); ton(jingle.cheat); geldregen(["💰", "💵", "💎", "🤑"]); }
         else if (beute >= 100000) { mission("Legendärer Coup!", "Tresor komplett leergeräumt"); ton(jingle.cheat); geldregen(["💰", "💵", "💎"]); }
         else { mission("Mission erfüllt!", "Beute: CHF " + beute.toLocaleString("de-CH")); ton(jingle.erfuellt); if (beute >= 25000) geldregen(["💵", "💰"]); }
       }
@@ -1776,9 +1780,16 @@
   // Die alte Penalty-Bestenliste (data.leaderboard) bleibt erhalten und ist per Knopf sichtbar.
   // ====================================================================
   (function heistGame() {
-    const STUFEN = [1000, 2500, 5000, 10000, 25000, 50000, 100000];
+    // Stufen ab Index HOCH = Hochsicherheitszone: 4 Kabel, 2 davon Alarm.
+    // Chance auf 1 Mio. (ohne Code): (2/3)^7 * (1/2)^3 * Fluchtchance ≈ 0.73 % * ~66 % ≈ 0.5 % – mit jedem Fahrzeug < 1 %.
+    const STUFEN = [1000, 2500, 5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000];
+    const HOCH = 7;
     const GEHEIM = 100000000;
-    const KABEL = [["k-rot", "Rot"], ["k-blau", "Blau"], ["k-gelb", "Gelb"]];
+    const KABEL = [["k-rot", "Rot"], ["k-blau", "Blau"], ["k-gelb", "Gelb"], ["k-gruen", "Grün"]];
+    // Fluchtfahrzeuge: Risiko-Zuschlag (Prozentpunkte) und Beute-Faktor
+    const FAHRZEUG = { auto: { risiko: 0, faktor: 1 }, heli: { risiko: -0.15, faktor: 0.8 }, vespa: { risiko: 0.06, faktor: 1.1 },
+      traktor: { risiko: 0.20, faktor: 1.5 }, bus: { risiko: 0, faktor: 1 } };
+    const grundRisiko = r => 0.04 + 0.03 * r;   // steigt mit jeder geschafften Runde
     const PLAN = {
       maske: { titel: "Maske", wahl: {
         clown: ["🤡", "Clown", "Klassiker. Niemand nimmt dich ernst."],
@@ -1791,11 +1802,11 @@
         dach: ["🪂", "Übers Dach", "Fallschirm aufs Stadiondach. Stilnote 10."],
         kanal: ["🕳️", "Kanalisation", "Stinkt. Aber man sieht Dinge, die andere nicht sehen …"] } },
       flucht: { titel: "Fluchtfahrzeug", wahl: {
-        auto: ["🏎️", "Sportwagen", "Solide. Normales Risiko, volle Beute."],
-        heli: ["🚁", "Helikopter", "Viel sicherer – aber der Pilot will 10 % der Beute."],
-        vespa: ["🛵", "Vespa", "Stil-Bonus +5 % Beute, dafür etwas riskanter."],
-        traktor: ["🚜", "Traktor", "+25 % Beute (niemand verdächtigt einen Bauern), aber sehr langsam."],
-        bus: ["🚌", "Linienbus", "Fahrplan-Lotto: pünktlich = sicher, Verspätung = Ärger."] } }
+        auto: ["🏎️", "Sportwagen", "Der Standard: normales Fluchtrisiko, volle Beute."],
+        heli: ["🚁", "Helikopter", "Fluchtrisiko −15 % – aber der Pilot will 20 % der Beute."],
+        vespa: ["🛵", "Vespa", "Stil-Bonus +10 % Beute, dafür +6 % Fluchtrisiko."],
+        traktor: ["🚜", "Traktor", "+50 % Beute (niemand verdächtigt einen Bauern), aber +20 % Fluchtrisiko."],
+        bus: ["🚌", "Linienbus", "Fahrplan-Lotto: pünktlich = 0 % Risiko, Verspätung = +35 %."] } }
     };
     const EVENTS = [
       ["😴", "Der Wachmann schläft tief und fest."],
@@ -1808,9 +1819,20 @@
       ["💻", "Die Alarmanlage macht ein Windows-Update – <strong>das nächste Kabel ist garantiert sicher!</strong>", "update"]
     ];
     const chf = n => "CHF " + n.toLocaleString("de-CH");
-    const kurz = n => n >= 1000 ? (n / 1000).toLocaleString("de-CH") + "k" : String(n);
+    const kurz = n => n >= 1000000 ? (n / 1000000).toLocaleString("de-CH") + " Mio" : n >= 1000 ? (n / 1000).toLocaleString("de-CH") + "k" : String(n);
     const ruhig = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const $ = id => document.getElementById(id);
+    const prozent = x => Math.round(x * 100) + " %";
+    // angezeigtes Fluchtrisiko (Bus: Spanne)
+    function risikoText() {
+      const g = grundRisiko(runde), fz = FAHRZEUG[wahl.flucht];
+      if (wahl.flucht === "bus") return `0 % oder ${prozent(Math.min(0.95, g + 0.35))}`;
+      return prozent(Math.min(0.95, Math.max(0.01, g + fz.risiko)));
+    }
+    function zeigeAbhauen() {
+      abhauenBtn.textContent = `${w("flucht")[0]} Abhauen · Fluchtrisiko ${risikoText()}`;
+      abhauenBtn.style.display = "inline-block";
+    }
 
     let wahl = { maske: "baer", einstieg: "tuer", flucht: "auto" };
     try { Object.assign(wahl, JSON.parse(localStorage.getItem("heistWahl") || "{}")); } catch (e) {}
@@ -1857,7 +1879,7 @@
     // ---------- Anzeige ----------
     function zeigeLeiter() {
       leiterEl.innerHTML = STUFEN.map((s, i) =>
-        `<span class="${i < runde ? "geschafft" : i === runde && laeuft ? "jetzt" : ""}">${kurz(s)}</span>`).join("");
+        `<span class="${i < runde ? "geschafft" : i === runde && laeuft ? "jetzt" : ""}${i >= HOCH ? " hoch" : ""}">${kurz(s)}</span>`).join("");
     }
     function bild(zeichen, wackeln) {
       bildEl.textContent = zeichen;
@@ -1865,7 +1887,7 @@
       if (wackeln) { void bildEl.offsetWidth; bildEl.classList.add("wackeln"); }
     }
     function zeigeKabel() {
-      const mix = [...KABEL].sort(() => Math.random() - 0.5);
+      const mix = KABEL.slice(0, runde >= HOCH ? 4 : 3).sort(() => Math.random() - 0.5);
       kabelEl.innerHTML = "";
       mix.forEach(([klasse, name], i) => {
         const b = document.createElement("button");
@@ -1912,9 +1934,11 @@
       if (!laeuft) return;
       sperreKabel();
       schlossEl.style.display = "none";
-      const alarm = update ? -1 : Math.floor(Math.random() * 3);
+      // normale Zone: 1 von 3 Kabeln Alarm; Hochsicherheitszone: 2 von 4
+      const anzahl = runde >= HOCH ? 4 : 3;
+      const alarme = update ? [] : [...Array(anzahl).keys()].sort(() => Math.random() - 0.5).slice(0, anzahl === 4 ? 2 : 1);
       update = false;
-      if (i === alarm) {
+      if (alarme.includes(i)) {
         kabelEl.querySelectorAll("button")[i].classList.add("alarm");
         busted(`Falsches Kabel – Alarm in Runde ${runde + 1}. Die Beute ist weg.`);
         return;
@@ -1923,13 +1947,14 @@
       beute = STUFEN[runde - 1];
       bild("💰", true);
       window.gtaHeist("kabel", beute);
-      abhauenBtn.style.display = "inline-block";
+      zeigeAbhauen();
       let text;
       if (runde >= STUFEN.length) {
         text = `💎 <span class="tag-frei">Tresor leergeräumt!</span> ${chf(beute)} im Sack. Jetzt nur noch raus hier …`;
         kabelEl.innerHTML = "";
       } else {
         text = `✂️ <span class="tag-frei">Puh, sicher!</span> Beute: <strong>${chf(beute)}</strong>. Nächstes Kabel = ${chf(STUFEN[runde])} – oder abhauen?`;
+        if (runde === HOCH) text += `<span class="heist-event">⚠️ Hochsicherheitszone! Ab jetzt 4 Kabel – und 2 davon lösen Alarm aus.</span>`;
         if (Math.random() < 0.3) {
           const ev = EVENTS[Math.floor(Math.random() * EVENTS.length)];
           if (ev[2] === "update") update = true;
@@ -1962,15 +1987,15 @@
       sperreKabel(); kabelEl.innerHTML = "";
       abhauenBtn.style.display = "none"; schlossEl.style.display = "none";
       const fz = wahl.flucht;
-      let risiko = 0.05 + 0.02 * runde, faktor = 1, notiz = "";
-      if (fz === "heli") { risiko -= 0.04; faktor = 0.9; notiz = "Der Pilot kassiert 10 %."; }
-      if (fz === "vespa") { risiko += 0.04; faktor = 1.05; notiz = "Stil-Bonus +5 %."; }
-      if (fz === "traktor") { risiko += 0.10; faktor = 1.25; notiz = "Niemand verdächtigt einen Bauern: +25 %."; }
+      let risiko = grundRisiko(runde) + FAHRZEUG[fz].risiko, faktor = FAHRZEUG[fz].faktor, notiz = "";
+      if (fz === "heli") notiz = "Der Pilot kassiert 20 %.";
+      if (fz === "vespa") notiz = "Stil-Bonus +10 %.";
+      if (fz === "traktor") notiz = "Niemand verdächtigt einen Bauern: +50 %.";
       if (fz === "bus") {
         if (Math.random() < 0.5) { risiko = 0; notiz = "Der Bus war auf die Sekunde pünktlich."; }
-        else { risiko += 0.20; notiz = "Der Bus hatte Verspätung …"; }
+        else { risiko += 0.35; notiz = "Der Bus hatte Verspätung …"; }
       }
-      risiko = Math.max(0.01, risiko);
+      risiko = fz === "bus" && risiko === 0 ? 0 : Math.min(0.95, Math.max(0.01, risiko));
       msgEl.innerHTML = `${w("flucht")[0]} Flucht läuft …`;
       bild("💨");
       await fahrt(w("flucht")[0], fz === "heli");
@@ -2012,7 +2037,7 @@
         runde = STUFEN.length; beute = GEHEIM;
         bild("🔓", true);
         msgEl.innerHTML = `🔓 <span class="tag-frei">TRESORCODE KORREKT!</span> <strong>${chf(beute)}</strong> im Sack. Jetzt nur noch entkommen …`;
-        abhauenBtn.style.display = "inline-block";
+        zeigeAbhauen();
         zeigeLeiter();
         window.gtaHeist("geknackt", beute);
         return;
